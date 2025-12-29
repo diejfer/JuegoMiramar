@@ -4,7 +4,7 @@ Repositorio de juegos simples desarrollados en HTML, CSS y JavaScript con ayuda 
 Todos los juegos están pensados para ejecutarse 100% en el navegador y ser usados desde celulares.
 
 ## URL del sitio
-https://diejfer.github.io/JuegoMiramat/
+https://diejfer.github.io/JuegoMiramar/
 
 ## Índice de juegos
 Cada juego vive en su propia carpeta y se accede con:
