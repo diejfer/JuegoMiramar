@@ -166,14 +166,16 @@ function clearCurrentRoom() {
 function showScreen(screenId) {
   console.log('[SHOW SCREEN] Switching to:', screenId);
 
-  // Hide all screens by removing 'active' class
+  // Hide all screens by removing 'active' class and adding 'hidden'
   document.querySelectorAll('.screen').forEach(screen => {
     screen.classList.remove('active');
+    screen.classList.add('hidden');
   });
 
-  // Show the target screen by adding 'active' class
+  // Show the target screen by adding 'active' class and removing 'hidden'
   const targetScreen = document.getElementById(screenId);
   if (targetScreen) {
+    targetScreen.classList.remove('hidden');
     targetScreen.classList.add('active');
     console.log('[SHOW SCREEN] Screen shown:', screenId);
   } else {
