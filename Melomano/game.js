@@ -165,10 +165,21 @@ function clearCurrentRoom() {
 // ==================== SCREEN NAVIGATION ====================
 
 function showScreen(screenId) {
+  console.log('[SHOW SCREEN] Switching to:', screenId);
+
+  // Hide all screens by removing 'active' class
   document.querySelectorAll('.screen').forEach(screen => {
-    screen.classList.add('hidden');
+    screen.classList.remove('active');
   });
-  document.getElementById(screenId).classList.remove('hidden');
+
+  // Show the target screen by adding 'active' class
+  const targetScreen = document.getElementById(screenId);
+  if (targetScreen) {
+    targetScreen.classList.add('active');
+    console.log('[SHOW SCREEN] Screen shown:', screenId);
+  } else {
+    console.error('[SHOW SCREEN] Screen not found:', screenId);
+  }
 }
 
 function goToLobby() {
