@@ -432,6 +432,34 @@ input[type="text"]::placeholder {
   }
 }
 
+.info-card {
+  background: linear-gradient(135deg, #E3F2FD 0%, #BBDEFB 100%);
+  border-left: 4px solid var(--color-secondary);
+  margin-bottom: var(--spacing-md);
+}
+
+.info-card h3 {
+  color: var(--color-secondary);
+  margin-bottom: var(--spacing-xs);
+}
+
+.info-card p {
+  color: #555;
+  margin-bottom: var(--spacing-sm);
+  font-size: var(--font-size-sm);
+}
+
+.instructions-list {
+  margin-left: var(--spacing-md);
+  color: #666;
+  font-size: var(--font-size-sm);
+}
+
+.instructions-list li {
+  margin-bottom: var(--spacing-xs);
+  line-height: 1.5;
+}
+
 .players-list {
   list-style: none;
 }
@@ -815,7 +843,7 @@ input[type="text"]::placeholder {
   font-size: var(--font-size-base);
 }
 
-.debug-close {
+.debug-toggle {
   background: transparent;
   border: none;
   color: white;
@@ -824,12 +852,34 @@ input[type="text"]::placeholder {
   padding: 0;
   width: 30px;
   height: 30px;
+  transition: transform 0.3s;
+}
+
+.debug-toggle:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+}
+
+.debug-panel.minimized .debug-toggle {
+  transform: rotate(180deg);
 }
 
 .debug-content {
   padding: var(--spacing-sm);
   max-height: calc(80vh - 60px);
   overflow-y: auto;
+  transition: max-height 0.3s ease, opacity 0.3s ease;
+}
+
+.debug-panel.minimized .debug-content {
+  max-height: 0;
+  opacity: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+.debug-panel.minimized {
+  max-height: 50px;
 }
 
 .debug-section {

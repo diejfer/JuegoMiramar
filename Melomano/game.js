@@ -580,12 +580,20 @@ function updateWaitingRoomUI() {
   const playersList = document.getElementById('players-list');
   const startButton = document.getElementById('btn-start-game');
   const readyButton = document.getElementById('btn-ready');
+  const instructionsCard = document.getElementById('waiting-instructions');
 
   // Update room code
   roomCodeDisplay.textContent = gameState.roomCode;
 
   // Update player count
   playerCount.textContent = gameState.players.length;
+
+  // Show/hide instructions based on player count
+  if (gameState.players.length > 1) {
+    instructionsCard.classList.add('hidden');
+  } else {
+    instructionsCard.classList.remove('hidden');
+  }
 
   // Update players list
   playersList.innerHTML = '';
@@ -931,13 +939,16 @@ function updateUI() {
 function enableDebugMode() {
   debugMode = true;
   const panel = document.getElementById('debug-panel');
+  const toggleBtn = document.getElementById('debug-toggle');
+
   panel.classList.remove('hidden');
 
   updateDebugPanel();
 
-  // Debug controls
-  document.getElementById('debug-close').addEventListener('click', () => {
-    panel.classList.add('hidden');
+  // Toggle minimize/maximize
+  toggleBtn.addEventListener('click', () => {
+    panel.classList.toggle('minimized');
+    toggleBtn.textContent = panel.classList.contains('minimized') ? '+' : '−';
   });
 
   document.getElementById('debug-skip-turn').addEventListener('click', () => {

@@ -12,9 +12,9 @@
     <div id="debug-panel" class="debug-panel hidden">
         <div class="debug-header">
             <h3>🐛 Debug Mode</h3>
-            <button id="debug-close" class="debug-close">×</button>
+            <button id="debug-toggle" class="debug-toggle">−</button>
         </div>
-        <div class="debug-content">
+        <div id="debug-content" class="debug-content">
             <div class="debug-section">
                 <h4>Game State</h4>
                 <pre id="debug-state"></pre>
@@ -100,6 +100,16 @@
                     <span class="label">Código de sala</span>
                     <span id="room-code-display" class="room-code">-----</span>
                     <span class="btn-copy-code">👆 Toca para copiar</span>
+                </div>
+
+                <div id="waiting-instructions" class="card info-card">
+                    <h3>⏳ Esperando jugadores...</h3>
+                    <p>Compartí el código con tus amigos para que se unan.</p>
+                    <ol class="instructions-list">
+                        <li>Mínimo 2 jugadores para empezar</li>
+                        <li>Todos deben marcar "Listo"</li>
+                        <li>El host inicia el juego</li>
+                    </ol>
                 </div>
 
                 <div class="card">
