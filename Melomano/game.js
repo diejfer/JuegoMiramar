@@ -359,11 +359,13 @@ function disconnectFromRoom() {
 // ==================== GAME EVENT HANDLERS ====================
 
 function handleGameStateUpdate(data) {
+  console.log('[GAME STATE UPDATE] Received:', data);
   gameState = { ...gameState, ...data };
   updateUI();
 }
 
 function handleGameEvent(event) {
+  console.log('[GAME EVENT] Received:', event.type, event);
   switch (event.type) {
     case 'player-join':
       handlePlayerJoin(event);
@@ -393,10 +395,14 @@ function handleGameEvent(event) {
 }
 
 function handlePlayerJoin(event) {
+  console.log('[HANDLE PLAYER JOIN] Event:', event);
   const existingPlayer = gameState.players.find(p => p.id === event.player.id);
   if (!existingPlayer) {
+    console.log('[HANDLE PLAYER JOIN] Adding new player:', event.player);
     gameState.players.push(event.player);
     showToast(`${event.player.name} se unió a la sala`, 'success');
+  } else {
+    console.log('[HANDLE PLAYER JOIN] Player already exists:', event.player.id);
   }
   updateWaitingRoomUI();
 }
@@ -505,6 +511,8 @@ async function createRoom() {
   const nameInput = document.getElementById('player-name');
   const playerName = nameInput.value.trim();
 
+  console.log('[CREATE ROOM] Starting...', { playerName });
+
   if (!playerName) {
     showToast('Por favor, ingresá tu nombre', 'error');
     nameInput.focus();
@@ -519,31 +527,40 @@ async function createRoom() {
       isHost: true
     };
     savePlayer(currentPlayer);
+    console.log('[CREATE ROOM] Player created:', currentPlayer);
 
     // Generate room code
     const roomCode = generateRoomCode();
+    console.log('[CREATE ROOM] Room code generated:', roomCode);
 
     // Show connecting message
     showToast('Conectando...', 'info');
 
     // Initialize Ably and connect
+    console.log('[CREATE ROOM] Initializing Ably...');
     await initializeAbly();
+    console.log('[CREATE ROOM] Ably initialized, connecting to room...');
     await connectToRoom(roomCode);
+    console.log('[CREATE ROOM] Connected to room channels');
 
     // Initialize game state
     gameState.roomCode = roomCode;
     gameState.players = [{ ...currentPlayer, ready: false, score: 0 }];
+    console.log('[CREATE ROOM] Game state initialized:', gameState);
 
     // Publish initial state
+    console.log('[CREATE ROOM] Publishing initial state...');
     await gameChannel.publish('state-update', gameState);
+    console.log('[CREATE ROOM] Initial state published');
 
     // Show waiting room
     goToWaitingRoom();
     updateWaitingRoomUI();
 
     showToast(`Sala creada: ${roomCode}`, 'success');
+    console.log('[CREATE ROOM] Success! Room created:', roomCode);
   } catch (error) {
-    console.error('Error creating room:', error);
+    console.error('[CREATE ROOM] Error:', error);
     showToast('No se pudo crear la sala. Verificá tu conexión a internet.', 'error');
     disconnectFromRoom();
     // Stay on lobby screen
@@ -556,6 +573,8 @@ async function joinRoom() {
 
   const playerName = nameInput.value.trim();
   const roomCode = codeInput.value.trim().toUpperCase();
+
+  console.log('[JOIN ROOM] Starting...', { playerName, roomCode });
 
   if (!playerName) {
     showToast('Por favor, ingresá tu nombre', 'error');
@@ -576,20 +595,29 @@ async function joinRoom() {
     isHost: false
   };
   savePlayer(currentPlayer);
+  console.log('[JOIN ROOM] Player created:', currentPlayer);
 
   try {
     // Initialize Ably and connect
+    console.log('[JOIN ROOM] Initializing Ably...');
     await initializeAbly();
+    console.log('[JOIN ROOM] Ably initialized, connecting to room...');
     await connectToRoom(roomCode);
+    console.log('[JOIN ROOM] Connected to room channels');
 
     // Request current state
+    console.log('[JOIN ROOM] Requesting channel history...');
     const history = await gameChannel.history({ limit: 1 });
+    console.log('[JOIN ROOM] History received:', history.items.length, 'items');
+
     if (history.items.length > 0) {
       const lastState = history.items[0].data;
+      console.log('[JOIN ROOM] Last state found:', lastState);
       gameState = { ...gameState, ...lastState };
 
       // Check if game already started
       if (gameState.state !== GameStates.WAITING && gameState.state !== GameStates.LOBBY) {
+        console.log('[JOIN ROOM] Game already started, state:', gameState.state);
         showToast('Esta partida ya comenzó', 'error');
         disconnectFromRoom();
         return;
@@ -597,29 +625,37 @@ async function joinRoom() {
 
       // Check if room is full
       if (gameState.players.length >= CONFIG.MAX_PLAYERS) {
+        console.log('[JOIN ROOM] Room is full:', gameState.players.length);
         showToast('La sala está llena', 'error');
         disconnectFromRoom();
         return;
       }
+    } else {
+      console.log('[JOIN ROOM] No history found - room might not exist or just created');
     }
 
     // Announce join
+    console.log('[JOIN ROOM] Publishing player-join event...');
     await eventsChannel.publish('player-join', {
       type: 'player-join',
       player: { ...currentPlayer, ready: false, score: 0 }
     });
+    console.log('[JOIN ROOM] player-join event published');
 
     // Add self to local state
     gameState.players.push({ ...currentPlayer, ready: false, score: 0 });
     gameState.roomCode = roomCode;
+    console.log('[JOIN ROOM] Updated local game state:', gameState);
 
     // Show waiting room
     goToWaitingRoom();
     updateWaitingRoomUI();
 
     showToast(`Te uniste a la sala ${roomCode}`, 'success');
+    console.log('[JOIN ROOM] Success! Joined room:', roomCode);
   } catch (error) {
-    console.error('Error joining room:', error);
+    console.error('[JOIN ROOM] Error:', error);
+    console.error('[JOIN ROOM] Error stack:', error.stack);
     showToast('No se pudo unir a la sala. Verificá el código.', 'error');
     disconnectFromRoom();
   }
