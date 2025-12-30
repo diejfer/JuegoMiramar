@@ -93,14 +93,15 @@
         <div id="screen-waiting" class="screen hidden">
             <header class="screen-header">
                 <h2>Sala de Espera</h2>
-                <div class="room-code-display">
-                    <span class="label">Código:</span>
-                    <span id="room-code-display" class="room-code">-----</span>
-                    <button id="btn-copy-code" class="btn-icon" title="Copiar código">📋</button>
-                </div>
             </header>
 
             <div class="waiting-content">
+                <div id="room-code-container" class="room-code-display" title="Toca para copiar el código">
+                    <span class="label">Código de sala</span>
+                    <span id="room-code-display" class="room-code">-----</span>
+                    <span class="btn-copy-code">👆 Toca para copiar</span>
+                </div>
+
                 <div class="card">
                     <h3>Jugadores (<span id="player-count">0</span>/4)</h3>
                     <ul id="players-list" class="players-list"></ul>

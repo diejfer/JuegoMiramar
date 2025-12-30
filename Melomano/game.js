@@ -1036,10 +1036,28 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('btn-start-game').addEventListener('click', startGame);
   document.getElementById('btn-leave-room').addEventListener('click', leaveRoom);
 
-  // Copy room code
-  document.getElementById('btn-copy-code').addEventListener('click', () => {
-    navigator.clipboard.writeText(gameState.roomCode);
-    showToast('Código copiado al portapapeles', 'success');
+  // Copy room code - entire container is clickable
+  document.getElementById('room-code-container').addEventListener('click', async () => {
+    const container = document.getElementById('room-code-container');
+    const copyText = container.querySelector('.btn-copy-code');
+
+    try {
+      await navigator.clipboard.writeText(gameState.roomCode);
+
+      // Visual feedback
+      container.classList.add('copied');
+      copyText.textContent = '✓ ¡Copiado!';
+      showToast('Código copiado al portapapeles', 'success');
+
+      // Reset after animation
+      setTimeout(() => {
+        container.classList.remove('copied');
+        copyText.textContent = '👆 Toca para copiar';
+      }, 2000);
+    } catch (error) {
+      console.error('Error copying to clipboard:', error);
+      showToast('No se pudo copiar. Intenta de nuevo.', 'error');
+    }
   });
 
   // Playing screen
