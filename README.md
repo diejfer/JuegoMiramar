@@ -9,7 +9,7 @@ https://diejfer.github.io/JuegoMiramar/
 ## Índice de juegos
 Cada juego vive en su propia carpeta y se accede con:
 
-https://diejfer.github.io/JuegoMiramat/<game-slug>/
+https://diejfer.github.io/JuegoMiramar/<game-slug>/
 
 | Juego | Descripción |
 |------|-------------|
@@ -19,6 +19,7 @@ https://diejfer.github.io/JuegoMiramat/<game-slug>/
 - `index.html` → Home del sitio
 - `README.md` → Este archivo
 - `development_guidelines.md` → Reglas de desarrollo
+- `agente.md` → Proceso de desarrollo con IA
 - `shared/` → Código compartido (debug, helpers)
 - `/<game-slug>/` → Carpeta de cada juego
 

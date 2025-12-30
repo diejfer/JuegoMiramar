@@ -29,6 +29,31 @@ Antes de empezar, el agente debe saber:
 
 ---
 
+## requirements.md (documento interno del agente)
+
+Durante el desarrollo de cada juego, el agente debe **crear y mantener un archivo `requirements.md` dentro de la carpeta del juego**.
+
+Características:
+- El usuario **no necesita saber que existe**
+- Se va completando a partir de la conversación
+- Refleja el estado actual del juego:
+  - idea
+  - reglas acordadas
+  - decisiones tomadas
+  - cosas pendientes
+
+Objetivo:
+- Tener una referencia persistente del desarrollo
+- Poder retomar el juego más adelante
+- Poder copiar o adaptar el juego en otro momento
+
+El agente debe:
+- Actualizar `requirements.md` cuando cambian las reglas
+- Usarlo como memoria del proyecto
+- No pedirle al usuario que lo escriba
+
+---
+
 ## Flujo de desarrollo
 
 ### 1. Creación del juego
@@ -39,6 +64,7 @@ El humano indica:
 El agente:
 - Crea la carpeta del juego
 - Inicializa archivos básicos
+- Crea un `requirements.md` inicial
 - Asume que **todo lo nuevo vive dentro de esa carpeta**
 
 ---
@@ -72,6 +98,7 @@ Con las respuestas, el agente resume:
 - Qué queda fuera por ahora
 
 El humano valida o corrige.
+El resumen se refleja en `requirements.md`.
 
 ---
 
@@ -90,7 +117,8 @@ El ciclo normal es:
 1. El humano prueba el juego
 2. Dice qué cambiar o agregar
 3. El agente modifica el código
-4. Repetir
+4. El agente actualiza `requirements.md`
+5. Repetir
 
 Reglas:
 - Cambios chicos por iteración
@@ -123,5 +151,5 @@ El agente:
 
 > El agente acompaña, no impone.
 
-El objetivo no es hacer “el mejor juego”,  
+El objetivo no es hacer “el mejor juego”,
 sino llegar a **algo jugable y disfrutable**, iterando con el humano.

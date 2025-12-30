@@ -1,0 +1,9 @@
+El Melómano es un juego de mesa para los amantes de la música. Cada tarjeta tiene un fragmento de una canción, con palabras borradas para cantar y completar. No importa cuán desafinado sea, los jugadores deberán completar el fragmento y contestar una serie de preguntas relacionadas al tema o la banda. Cada uno de los 4 tableros es una sala de música, y quién primero consiga los 3 discos de Platino será el ganador.
+
+Es un juego multijugador que se juega en ronda, un jugador por vez. A quien le toca jugar se le presenta una carta con un fragmento de una cancion con dos palabras faltantes, y preguntas relacionadas al tema, la banda, compositor, etc.
+
+Al resto de los  jugarores se le presentan las respuestas de dicha carta para que puedan evaluar las respuestas de quien esta jugando. Tenes en la carpeta del juego un pdf con instrucciones.
+
+El juego tiene diferentes categorias de canciones, rock nacional, internacionales, folklore, etc. cada una de estas listas sera un archivo en el server de forma tal qeu el sitio cargue el archivo que necesita una vez que quien comienza la partida elije una categoria.
+
+Cuando armes las preguntas si podes conseguir un link del video mucho mejor para que el jugador pueda escuchar el tema al terminar

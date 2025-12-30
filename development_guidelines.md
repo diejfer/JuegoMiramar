@@ -5,7 +5,7 @@ Desarrollar múltiples juegos simples usando tecnologías web, con ayuda de un a
 El repositorio se publica automáticamente como sitio estático.
 
 URL base:
-https://diejfer.github.io/JuegoMiramat/
+https://diejfer.github.io/JuegoMiramar/
 
 ---
 
@@ -15,6 +15,7 @@ https://diejfer.github.io/JuegoMiramat/
 - `index.html` (home)
 - `README.md`
 - `development_guidelines.md`
+- `agente.md`
 - `shared/` (código común permitido)
 
 ### Por juego
@@ -109,17 +110,6 @@ El código de debug vive en el root (`shared/`) y se reutiliza.
 - Pensado primero para celular (portrait).
 - Botones grandes y texto legible.
 - Debe seguir funcionando en tablet y PC.
-
----
-
-## requirements.md
-Cada juego tiene un `requirements.md` que define:
-- reglas del juego
-- pantallas
-- flujo multiplayer (si aplica)
-- persistencia esperada
-
-Si algo no está definido ahí, no se inventa.
 
 ---
 
