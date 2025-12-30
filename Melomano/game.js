@@ -208,12 +208,20 @@ async function initializeAbly() {
   try {
     ably = new Ably.Realtime({
       key: CONFIG.ABLY_API_KEY,
-      clientId: currentPlayer.id
+      clientId: currentPlayer.id,
+      echoMessages: true, // Important: receive own messages
+      autoConnect: true,
+      disconnectedRetryTimeout: 3000,
+      suspendedRetryTimeout: 3000
     });
 
     ably.connection.on('connected', () => {
       updateConnectionStatus(true);
       debugLog('Ably connected');
+    });
+
+    ably.connection.on('connecting', () => {
+      debugLog('Ably connecting...');
     });
 
     ably.connection.on('disconnected', () => {
@@ -226,24 +234,34 @@ async function initializeAbly() {
       debugLog('Ably suspended');
     });
 
-    ably.connection.on('failed', () => {
-      debugLog('Ably connection failed');
+    ably.connection.on('failed', (error) => {
+      debugLog('Ably connection failed', error);
+      updateConnectionStatus(false, 'Conexión fallida');
+    });
+
+    ably.connection.on('closed', () => {
+      debugLog('Ably connection closed');
+    });
+
+    ably.connection.on('update', () => {
+      debugLog('Ably connection updated');
     });
 
     // Wait for connection with timeout
     return new Promise((resolve, reject) => {
       const timeout = setTimeout(() => {
         reject(new Error('Connection timeout'));
-      }, 10000); // 10 seconds timeout
+      }, 15000); // 15 seconds timeout
 
       ably.connection.once('connected', () => {
         clearTimeout(timeout);
+        debugLog('Ably connected successfully');
         resolve();
       });
 
-      ably.connection.once('failed', () => {
+      ably.connection.once('failed', (error) => {
         clearTimeout(timeout);
-        reject(new Error('Connection failed'));
+        reject(error || new Error('Connection failed'));
       });
     });
   } catch (error) {
@@ -258,24 +276,59 @@ async function connectToRoom(roomCode) {
     await initializeAbly();
   }
 
-  // Subscribe to game state channel
-  gameChannel = ably.channels.get(`${CONFIG.CHANNEL_PREFIX}:${roomCode}:game`);
-  eventsChannel = ably.channels.get(`${CONFIG.CHANNEL_PREFIX}:${roomCode}:events`);
+  try {
+    // Get channels
+    gameChannel = ably.channels.get(`${CONFIG.CHANNEL_PREFIX}:${roomCode}:game`);
+    eventsChannel = ably.channels.get(`${CONFIG.CHANNEL_PREFIX}:${roomCode}:events`);
 
-  // Subscribe to game state updates
-  gameChannel.subscribe((message) => {
-    debugLog('Game state update:', message.data);
-    handleGameStateUpdate(message.data);
-  });
+    debugLog(`Attaching to channels for room: ${roomCode}`);
 
-  // Subscribe to events
-  eventsChannel.subscribe((message) => {
-    debugLog('Event received:', message.data);
-    handleGameEvent(message.data);
-  });
+    // Attach to channels before subscribing
+    await Promise.all([
+      new Promise((resolve, reject) => {
+        gameChannel.attach((err) => {
+          if (err) {
+            debugLog('Error attaching to game channel', err);
+            reject(err);
+          } else {
+            debugLog('Attached to game channel');
+            resolve();
+          }
+        });
+      }),
+      new Promise((resolve, reject) => {
+        eventsChannel.attach((err) => {
+          if (err) {
+            debugLog('Error attaching to events channel', err);
+            reject(err);
+          } else {
+            debugLog('Attached to events channel');
+            resolve();
+          }
+        });
+      })
+    ]);
 
-  currentRoom = roomCode;
-  saveCurrentRoom(roomCode);
+    // Subscribe to game state updates
+    gameChannel.subscribe((message) => {
+      debugLog('Game state update:', message.data);
+      handleGameStateUpdate(message.data);
+    });
+
+    // Subscribe to events
+    eventsChannel.subscribe((message) => {
+      debugLog('Event received:', message.data);
+      handleGameEvent(message.data);
+    });
+
+    currentRoom = roomCode;
+    saveCurrentRoom(roomCode);
+
+    debugLog(`Successfully connected to room: ${roomCode}`);
+  } catch (error) {
+    console.error('Error connecting to room:', error);
+    throw error;
+  }
 }
 
 function disconnectFromRoom() {
