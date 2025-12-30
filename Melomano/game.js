@@ -23,6 +23,24 @@ const GameStates = {
   GAME_OVER: 'gameover'
 };
 
+const HYPE_PHRASES = [
+  '🎸 ¡Dale que va! 🎸',
+  '🔥 ¡A romperla toda! 🔥',
+  '⚡ ¡Con toda la actitud! ⚡',
+  '🎵 ¡Que empiece el rock! 🎵',
+  '🤘 ¡Puro rock nacional! 🤘',
+  '🎶 ¡A cantar y adivinar! 🎶',
+  '💥 ¡Preparate para el recital! 💥',
+  '🎤 ¡Sabelo que viene! 🎤',
+  '🔊 ¡Al palo con el rock! 🔊',
+  '🎸 ¡Que suene fuerte! 🎸',
+  '⭐ ¡Dale campeón! ⭐',
+  '🚀 ¡Arranquemos con todo! 🚀',
+  '🏆 ¡A ganar se ha dicho! 🏆',
+  '💪 ¡Con garra y corazón! 💪',
+  '🎯 ¡A demostrar quién sabe más! 🎯'
+];
+
 // ==================== GLOBAL STATE ====================
 
 let ably = null;
@@ -166,14 +184,16 @@ function clearCurrentRoom() {
 function showScreen(screenId) {
   console.log('[SHOW SCREEN] Switching to:', screenId);
 
-  // Hide all screens by removing 'active' class
+  // Hide all screens by removing 'active' class and adding 'hidden'
   document.querySelectorAll('.screen').forEach(screen => {
     screen.classList.remove('active');
+    screen.classList.add('hidden');
   });
 
-  // Show the target screen by adding 'active' class
+  // Show the target screen by adding 'active' class and removing 'hidden'
   const targetScreen = document.getElementById(screenId);
   if (targetScreen) {
+    targetScreen.classList.remove('hidden');
     targetScreen.classList.add('active');
     console.log('[SHOW SCREEN] Screen shown:', screenId);
   } else {
@@ -695,6 +715,14 @@ async function joinRoom() {
 
 // ==================== WAITING ROOM LOGIC ====================
 
+function showRandomHypePhrase() {
+  const hypeText = document.querySelector('.hype-text');
+  if (hypeText) {
+    const randomPhrase = HYPE_PHRASES[Math.floor(Math.random() * HYPE_PHRASES.length)];
+    hypeText.textContent = randomPhrase;
+  }
+}
+
 function updateWaitingRoomUI() {
   const roomCodeDisplay = document.getElementById('room-code-display');
   const playerCount = document.getElementById('player-count');
@@ -702,6 +730,9 @@ function updateWaitingRoomUI() {
   const startButton = document.getElementById('btn-start-game');
   const readyButton = document.getElementById('btn-ready');
   const instructionsCard = document.getElementById('waiting-instructions');
+
+  // Show random hype phrase
+  showRandomHypePhrase();
 
   // Update room code
   roomCodeDisplay.textContent = gameState.roomCode;

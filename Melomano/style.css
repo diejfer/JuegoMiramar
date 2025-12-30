@@ -449,6 +449,37 @@ input[type="text"]::placeholder {
   font-size: var(--font-size-sm);
 }
 
+.hype-card {
+  background: linear-gradient(135deg, #FF6B35 0%, #F7931E 50%, #FF6B35 100%);
+  border: none;
+  border-left: 4px solid #E55A2B;
+  margin-bottom: var(--spacing-md);
+  padding: var(--spacing-lg);
+  animation: hype-pulse 2s ease-in-out infinite;
+  box-shadow: 0 4px 15px rgba(255, 107, 53, 0.3);
+}
+
+.hype-text {
+  color: white;
+  font-size: var(--font-size-xl);
+  font-weight: bold;
+  text-align: center;
+  margin: 0;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+  letter-spacing: 0.5px;
+}
+
+@keyframes hype-pulse {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 4px 15px rgba(255, 107, 53, 0.3);
+  }
+  50% {
+    transform: scale(1.02);
+    box-shadow: 0 6px 20px rgba(255, 107, 53, 0.5);
+  }
+}
+
 .instructions-list {
   margin-left: var(--spacing-md);
   color: #666;
