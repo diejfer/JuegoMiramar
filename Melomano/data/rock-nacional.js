@@ -17,7 +17,7 @@ const ROCK_NACIONAL_CARDS = [
       { "q": "Año", "a": "1967" },
       { "q": "Ciudad", "a": "rosario" }
     ],
-    "videoLink": "https://www.youtube.com/results?search_query=los+gatos+la+balsa+oficial"
+    "videoLink": "https://www.youtube.com/watch?v=Z4yjtVp8Qcc"
   },
   {
     "id": 2,
@@ -32,7 +32,7 @@ const ROCK_NACIONAL_CARDS = [
       { "q": "Año", "a": "1969" },
       { "q": "Album", "a": "almendra" }
     ],
-    "videoLink": "https://www.youtube.com/results?search_query=almendra+muchacha+ojos+de+papel"
+    "videoLink": "https://www.youtube.com/watch?v=3d7axPF9o84"
   },
   {
     "id": 3,
@@ -47,7 +47,7 @@ const ROCK_NACIONAL_CARDS = [
       { "q": "Año", "a": "1970" },
       { "q": "Ciudad", "a": "buenos aires" }
     ],
-    "videoLink": "https://www.youtube.com/results?search_query=manal+jugo+de+tomate+frio"
+    "videoLink": "https://www.youtube.com/watch?v=RCnlgvPp0Nk"
   },
   {
     "id": 4,
@@ -62,7 +62,7 @@ const ROCK_NACIONAL_CARDS = [
       { "q": "Año", "a": "1970" },
       { "q": "Decada", "a": "70" }
     ],
-    "videoLink": "https://www.youtube.com/results?search_query=vox+dei+presente"
+    "videoLink": "https://www.youtube.com/watch?v=xz5a1DoAmqA"
   },
   {
     "id": 5,
@@ -77,7 +77,7 @@ const ROCK_NACIONAL_CARDS = [
       { "q": "Año", "a": "1969" },
       { "q": "Decada", "a": "60" }
     ],
-    "videoLink": "https://www.youtube.com/results?search_query=moris+el+oso"
+    "videoLink": "https://www.youtube.com/watch?v=YW6VwSEpSt8"
   },
   {
     "id": 6,
@@ -92,7 +92,7 @@ const ROCK_NACIONAL_CARDS = [
       { "q": "Año", "a": "1972" },
       { "q": "Album", "a": "vida" }
     ],
-    "videoLink": "https://www.youtube.com/results?search_query=sui+generis+cancion+para+mi+muerte"
+    "videoLink": "https://www.youtube.com/watch?v=K5J5jGT5B0k"
   },
   {
     "id": 7,
@@ -107,7 +107,7 @@ const ROCK_NACIONAL_CARDS = [
       { "q": "Año", "a": "1973" },
       { "q": "Album", "a": "confesiones de invierno" }
     ],
-    "videoLink": "https://www.youtube.com/results?search_query=sui+generis+rasguna+las+piedras"
+    "videoLink": "https://www.youtube.com/watch?v=L6B8dIR3MJY"
   },
   {
     "id": 8,
@@ -122,7 +122,7 @@ const ROCK_NACIONAL_CARDS = [
       { "q": "Año", "a": "1973" },
       { "q": "Album", "a": "artaud" }
     ],
-    "videoLink": "https://www.youtube.com/results?search_query=spinetta+bajan+artaud"
+    "videoLink": "https://www.youtube.com/watch?v=1xZ0W6uMU6A"
   },
   {
     "id": 9,
@@ -137,7 +137,7 @@ const ROCK_NACIONAL_CARDS = [
       { "q": "Año", "a": "1978" },
       { "q": "Bajista", "a": "pedro aznar" }
     ],
-    "videoLink": "https://www.youtube.com/results?search_query=seru+giran+seminare"
+    "videoLink": "https://www.youtube.com/watch?v=JJ89rpj-u5w"
   },
   {
     "id": 10,
@@ -152,11 +152,11 @@ const ROCK_NACIONAL_CARDS = [
       { "q": "Año", "a": "1983" },
       { "q": "Album", "a": "clics modernos" }
     ],
-    "videoLink": "https://www.youtube.com/results?search_query=charly+garcia+los+dinosaurios"
+    "videoLink": "https://www.youtube.com/watch?v=r1klNkoHtk8"
   },
 
-  { "id": 11, "category": "Rock Nacional Argentino", "lyrics": "Estoy al borde de la _____... se me va la _____", "word1": { "answer": "cornisa", "position": 1 }, "word2": { "answer": "vida", "position": 2 }, "questions": [ { "q": "Tema", "a": "rezo por vos" }, { "q": "Artista", "a": "charly garcia" }, { "q": "Duo", "a": "spinetta" }, { "q": "Año", "a": "1985" }, { "q": "Decada", "a": "80" } ], "videoLink": "https://www.youtube.com/results?search_query=rezo+por+vos+charly+spinetta" },
-  { "id": 12, "category": "Rock Nacional Argentino", "lyrics": "Cerca de la _____... el pueblo pide _____", "word1": { "answer": "revolucion", "position": 1 }, "word2": { "answer": "sangre", "position": 2 }, "questions": [ { "q": "Tema", "a": "cerca de la revolucion" }, { "q": "Artista", "a": "charly garcia" }, { "q": "Album", "a": "piano bar" }, { "q": "Año", "a": "1984" }, { "q": "Decada", "a": "80" } ], "videoLink": "https://www.youtube.com/results?search_query=charly+garcia+cerca+de+la+revolucion" },
+  { "id": 11, "category": "Rock Nacional Argentino", "lyrics": "Estoy al borde de la _____... se me va la _____", "word1": { "answer": "cornisa", "position": 1 }, "word2": { "answer": "vida", "position": 2 }, "questions": [ { "q": "Tema", "a": "rezo por vos" }, { "q": "Artista", "a": "charly garcia" }, { "q": "Duo", "a": "spinetta" }, { "q": "Año", "a": "1985" }, { "q": "Decada", "a": "80" } ], "videoLink": "https://www.youtube.com/watch?v=_gFsaWJiB2Q" },
+  { "id": 12, "category": "Rock Nacional Argentino", "lyrics": "Cerca de la _____... el pueblo pide _____", "word1": { "answer": "revolucion", "position": 1 }, "word2": { "answer": "sangre", "position": 2 }, "questions": [ { "q": "Tema", "a": "cerca de la revolucion" }, { "q": "Artista", "a": "charly garcia" }, { "q": "Album", "a": "piano bar" }, { "q": "Año", "a": "1984" }, { "q": "Decada", "a": "80" } ], "videoLink": "https://www.youtube.com/watch?v=JfmVvD_34X4" },
   { "id": 13, "category": "Rock Nacional Argentino", "lyrics": "De aquel amor de musica _____... nada nos _____", "word1": { "answer": "ligera", "position": 1 }, "word2": { "answer": "libra", "position": 2 }, "questions": [ { "q": "Tema", "a": "de musica ligera" }, { "q": "Banda", "a": "soda stereo" }, { "q": "Artista", "a": "gustavo cerati" }, { "q": "Año", "a": "1990" }, { "q": "Baterista", "a": "charly alberti" } ], "videoLink": "https://www.youtube.com/results?search_query=soda+stereo+de+musica+ligera" },
   { "id": 14, "category": "Rock Nacional Argentino", "lyrics": "Yo te prefiero... fuera de _____, _____", "word1": { "answer": "foco", "position": 1 }, "word2": { "answer": "inalcanzable", "position": 2 }, "questions": [ { "q": "Tema", "a": "persiana americana" }, { "q": "Banda", "a": "soda stereo" }, { "q": "Artista", "a": "gustavo cerati" }, { "q": "Año", "a": "1986" }, { "q": "Bajista", "a": "zeta bosio" } ], "videoLink": "https://www.youtube.com/results?search_query=soda+stereo+persiana+americana" },
   { "id": 15, "category": "Rock Nacional Argentino", "lyrics": "Me veras _____... ciudad de la _____", "word1": { "answer": "volar", "position": 1 }, "word2": { "answer": "furia", "position": 2 }, "questions": [ { "q": "Tema", "a": "en la ciudad de la furia" }, { "q": "Banda", "a": "soda stereo" }, { "q": "Artista", "a": "gustavo cerati" }, { "q": "Año", "a": "1988" }, { "q": "Album", "a": "doble vida" } ], "videoLink": "https://www.youtube.com/results?search_query=soda+stereo+ciudad+de+la+furia" },
