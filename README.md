@@ -13,7 +13,7 @@ https://diejfer.github.io/JuegoMiramar/<game-slug>/
 
 | Juego | Descripción |
 |------|-------------|
-| (pendiente) | (agregar breve descripción) |
+| [Melómano](./Melomano/) | 🎵 Trivia musical multijugador (2-4 jugadores) - Rock Nacional Argentino. Completá letras y respondé preguntas sobre las bandas. |
 
 ## Estructura del repositorio
 - `index.html` → Home del sitio
