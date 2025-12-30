@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Melómano - Juego de trivia musical multijugador de Rock Nacional Argentino">
+    <title>Melómano - Juego de Música</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Debug Panel (hidden by default, shown with ?debug=true) -->
+    <div id="debug-panel" class="debug-panel hidden">
+        <div class="debug-header">
+            <h3>🐛 Debug Mode</h3>
+            <button id="debug-close" class="debug-close">×</button>
+        </div>
+        <div class="debug-content">
+            <div class="debug-section">
+                <h4>Game State</h4>
+                <pre id="debug-state"></pre>
+            </div>
+            <div class="debug-section">
+                <h4>Ably Messages</h4>
+                <div id="debug-messages" class="debug-messages"></div>
+            </div>
+            <div class="debug-section">
+                <h4>Controls</h4>
+                <button id="debug-skip-turn">Skip Turn</button>
+                <button id="debug-add-points">+5 Points</button>
+                <button id="debug-end-game">End Game</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Connection Status Banner -->
+    <div id="connection-banner" class="connection-banner hidden">
+        <span id="connection-message">Reconectando...</span>
+    </div>
+
+    <!-- Main Container -->
+    <div id="app" class="container">
+
+        <!-- PANTALLA 1: LOBBY -->
+        <div id="screen-lobby" class="screen active">
+            <header class="app-header">
+                <h1 class="app-title">🎵 Melómano</h1>
+                <p class="app-subtitle">Trivia Musical - Rock Nacional</p>
+            </header>
+
+            <div class="lobby-content">
+                <div class="card">
+                    <h2>Bienvenido</h2>
+                    <div class="form-group">
+                        <label for="player-name">Tu nombre:</label>
+                        <input
+                            type="text"
+                            id="player-name"
+                            placeholder="Ingresá tu nombre"
+                            maxlength="20"
+                            autocomplete="off"
+                        >
+                    </div>
+
+                    <div class="button-group">
+                        <button id="btn-create-room" class="btn btn-primary btn-large">
+                            Crear Sala
+                        </button>
+                        <div class="divider">o</div>
+                        <div class="join-room-group">
+                            <input
+                                type="text"
+                                id="room-code-input"
+                                placeholder="Código de sala"
+                                maxlength="5"
+                                autocomplete="off"
+                            >
+                            <button id="btn-join-room" class="btn btn-secondary">
+                                Unirse
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Active Rooms (Optional feature) -->
+                <div id="active-rooms" class="active-rooms hidden">
+                    <h3>Salas Activas</h3>
+                    <div id="rooms-list"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- PANTALLA 2: SALA DE ESPERA -->
+        <div id="screen-waiting" class="screen hidden">
+            <header class="screen-header">
+                <h2>Sala de Espera</h2>
+                <div class="room-code-display">
+                    <span class="label">Código:</span>
+                    <span id="room-code-display" class="room-code">-----</span>
+                    <button id="btn-copy-code" class="btn-icon" title="Copiar código">📋</button>
+                </div>
+            </header>
+
+            <div class="waiting-content">
+                <div class="card">
+                    <h3>Jugadores (<span id="player-count">0</span>/4)</h3>
+                    <ul id="players-list" class="players-list"></ul>
+                </div>
+
+                <div class="waiting-actions">
+                    <button id="btn-ready" class="btn btn-secondary">
+                        <span id="ready-text">Listo</span>
+                    </button>
+                    <button id="btn-start-game" class="btn btn-primary btn-large hidden">
+                        Iniciar Juego
+                    </button>
+                    <button id="btn-leave-room" class="btn btn-outline">
+                        Salir
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- PANTALLA 3A: JUEGO - TURNO ACTIVO (para el jugador actual) -->
+        <div id="screen-playing-active" class="screen hidden">
+            <header class="game-header">
+                <div class="game-info">
+                    <span class="card-counter">Tarjeta <span id="active-card-num">1</span>/12</span>
+                    <span class="timer" id="active-timer">⏱️ 2:00</span>
+                    <span class="score">Score: <span id="active-score">0</span></span>
+                </div>
+            </header>
+
+            <div class="game-content">
+                <div class="card card-question">
+                    <div class="lyrics-section">
+                        <p id="active-lyrics" class="lyrics"></p>
+                    </div>
+
+                    <div class="answers-section">
+                        <h3>Completá las palabras:</h3>
+                        <div class="form-group">
+                            <label>Palabra 1:</label>
+                            <input
+                                type="text"
+                                id="active-word1"
+                                class="input-word"
+                                autocomplete="off"
+                            >
+                        </div>
+                        <div class="form-group">
+                            <label>Palabra 2:</label>
+                            <input
+                                type="text"
+                                id="active-word2"
+                                class="input-word"
+                                autocomplete="off"
+                            >
+                        </div>
+
+                        <h3>Respondé las preguntas:</h3>
+                        <div id="active-questions" class="questions-list"></div>
+
+                        <button id="btn-submit-answers" class="btn btn-primary btn-large">
+                            Enviar Respuestas
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- PANTALLA 3B: JUEGO - VISTA DE VALIDACIÓN (para los otros jugadores) -->
+        <div id="screen-playing-validation" class="screen hidden">
+            <header class="game-header">
+                <div class="game-info">
+                    <span class="turn-player">Turno de <strong id="validation-player-name">---</strong></span>
+                    <span class="card-counter">Tarjeta <span id="validation-card-num">1</span>/12</span>
+                    <span class="timer" id="validation-timer">⏱️ 2:00</span>
+                </div>
+            </header>
+
+            <div class="game-content">
+                <div class="card card-validation">
+                    <h2 class="validation-title">RESPUESTAS PARA VALIDAR</h2>
+
+                    <div class="lyrics-section">
+                        <p id="validation-lyrics" class="lyrics"></p>
+                    </div>
+
+                    <div class="answers-display">
+                        <div class="answer-group">
+                            <h3>Palabras faltantes:</h3>
+                            <ul class="answer-list">
+                                <li>• <span id="validation-word1">---</span></li>
+                                <li>• <span id="validation-word2">---</span></li>
+                            </ul>
+                        </div>
+
+                        <div class="answer-group">
+                            <h3>Preguntas:</h3>
+                            <ol id="validation-questions" class="answer-list"></ol>
+                        </div>
+
+                        <div class="waiting-indicator">
+                            <div class="spinner"></div>
+                            <p>Esperando que <strong id="validation-waiting-name">---</strong> responda...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- PANTALLA 4: RESULTADOS DEL TURNO -->
+        <div id="screen-turn-results" class="screen hidden">
+            <header class="screen-header">
+                <h2>Resultados del Turno</h2>
+            </header>
+
+            <div class="results-content">
+                <div class="card">
+                    <div class="turn-score">
+                        <h3 id="results-player-name">---</h3>
+                        <p class="points-earned">obtuvo <strong id="results-points">0</strong> puntos</p>
+                    </div>
+
+                    <div class="results-details">
+                        <h4>Detalle:</h4>
+                        <ul id="results-list" class="results-list"></ul>
+                    </div>
+
+                    <div class="video-link">
+                        <a id="results-video-link" href="#" target="_blank" class="btn btn-video">
+                            🎵 Escuchar la canción
+                        </a>
+                    </div>
+
+                    <div class="next-turn-countdown">
+                        <p>Siguiente turno en <strong id="countdown-timer">5</strong> segundos...</p>
+                    </div>
+                </div>
+
+                <div class="scoreboard-mini">
+                    <h4>Puntajes actuales:</h4>
+                    <ul id="mini-scoreboard"></ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- PANTALLA 5: FIN DEL JUEGO -->
+        <div id="screen-game-over" class="screen hidden">
+            <header class="screen-header">
+                <h2>¡Juego Terminado!</h2>
+            </header>
+
+            <div class="gameover-content">
+                <div class="winner-section">
+                    <div class="trophy">🏆</div>
+                    <h3>¡Ganador!</h3>
+                    <p id="winner-name" class="winner-name">---</p>
+                    <p id="winner-score" class="winner-score">0 puntos</p>
+                </div>
+
+                <div class="card">
+                    <h3>Clasificación Final</h3>
+                    <ol id="final-scoreboard" class="final-scoreboard"></ol>
+                </div>
+
+                <div class="gameover-actions">
+                    <button id="btn-play-again" class="btn btn-primary btn-large">
+                        Jugar de Nuevo
+                    </button>
+                    <button id="btn-back-to-lobby" class="btn btn-outline">
+                        Volver al Lobby
+                    </button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Toast Notifications -->
+    <div id="toast-container" class="toast-container"></div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.ably.com/lib/ably.min-1.js"></script>
+    <script src="data/rock-nacional.js"></script>
+    <script src="game.js"></script>
+</body>
+</html>
