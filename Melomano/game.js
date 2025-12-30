@@ -9,7 +9,6 @@ const CONFIG = {
   ABLY_API_KEY: '0609vA.En_nDQ:Kgcee1NdA-HVmitHeqnkn1azg3t6Lx5EqqonBlt_v3E',
   CHANNEL_PREFIX: 'jm:melomano',
   STORAGE_PREFIX: 'JM:melomano',
-  TURN_DURATION: 120000, // 2 minutes in milliseconds
   TURN_RESULTS_DURATION: 5000, // 5 seconds countdown
   MIN_PLAYERS: 2,
   MAX_PLAYERS: 4,
@@ -165,10 +164,21 @@ function clearCurrentRoom() {
 // ==================== SCREEN NAVIGATION ====================
 
 function showScreen(screenId) {
+  console.log('[SHOW SCREEN] Switching to:', screenId);
+
+  // Hide all screens by removing 'active' class
   document.querySelectorAll('.screen').forEach(screen => {
-    screen.classList.add('hidden');
+    screen.classList.remove('active');
   });
-  document.getElementById(screenId).classList.remove('hidden');
+
+  // Show the target screen by adding 'active' class
+  const targetScreen = document.getElementById(screenId);
+  if (targetScreen) {
+    targetScreen.classList.add('active');
+    console.log('[SHOW SCREEN] Screen shown:', screenId);
+  } else {
+    console.error('[SHOW SCREEN] Screen not found:', screenId);
+  }
 }
 
 function goToLobby() {
@@ -394,13 +404,19 @@ function handleGameEvent(event) {
   }
 }
 
-function handlePlayerJoin(event) {
+async function handlePlayerJoin(event) {
   console.log('[HANDLE PLAYER JOIN] Event:', event);
   const existingPlayer = gameState.players.find(p => p.id === event.player.id);
   if (!existingPlayer) {
     console.log('[HANDLE PLAYER JOIN] Adding new player:', event.player);
     gameState.players.push(event.player);
     showToast(`${event.player.name} se unió a la sala`, 'success');
+
+    // If I'm the host, publish updated state to sync everyone
+    if (currentPlayer && currentPlayer.isHost) {
+      console.log('[HANDLE PLAYER JOIN] Host publishing updated state');
+      await gameChannel.publish('state-update', gameState);
+    }
   } else {
     console.log('[HANDLE PLAYER JOIN] Player already exists:', event.player.id);
   }
@@ -423,10 +439,16 @@ function handlePlayerLeave(event) {
   updateWaitingRoomUI();
 }
 
-function handlePlayerReady(event) {
+async function handlePlayerReady(event) {
   const player = gameState.players.find(p => p.id === event.playerId);
   if (player) {
     player.ready = event.ready;
+
+    // If I'm the host, publish updated state to sync everyone
+    if (currentPlayer && currentPlayer.isHost) {
+      console.log('[HANDLE PLAYER READY] Host publishing updated state');
+      await gameChannel.publish('state-update', gameState);
+    }
   }
   updateWaitingRoomUI();
 }
@@ -856,20 +878,13 @@ function startTurnTimer() {
 
   const updateTimer = () => {
     const elapsed = Date.now() - gameState.turnStartTime;
-    const remaining = Math.max(0, CONFIG.TURN_DURATION - elapsed);
 
-    document.getElementById('active-timer').textContent = '⏱️ ' + formatTime(remaining);
-
-    if (remaining <= 0) {
-      clearInterval(turnTimer);
-      showToast('¡Se acabó el tiempo!', 'error');
-      // Auto-submit empty answers
-      submitAnswers();
-    }
+    // Show elapsed time instead of countdown (no time limit)
+    document.getElementById('active-timer').textContent = '⏱️ ' + formatTime(elapsed);
   };
 
   updateTimer();
-  turnTimer = setInterval(updateTimer, 100);
+  turnTimer = setInterval(updateTimer, 1000); // Update every second
 }
 
 async function submitAnswers() {
