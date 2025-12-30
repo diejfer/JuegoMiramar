@@ -1124,10 +1124,22 @@ function updateDebugPanel() {
 // ==================== EVENT LISTENERS ====================
 
 document.addEventListener('DOMContentLoaded', () => {
-  // Check for debug mode
+  // Check for URL parameters
   const urlParams = new URLSearchParams(window.location.search);
+
+  // Check for debug mode
   if (urlParams.get('debug') === 'true') {
     enableDebugMode();
+  }
+
+  // Check for room code in URL
+  const roomCodeFromUrl = urlParams.get('room');
+  if (roomCodeFromUrl) {
+    const roomCodeInput = document.getElementById('room-code-input');
+    roomCodeInput.value = roomCodeFromUrl.toUpperCase();
+    // Focus on name input so user just needs to type name and join
+    document.getElementById('player-name').focus();
+    showToast('Código de sala detectado! Ingresá tu nombre para unirte', 'info');
   }
 
   // Load saved player
@@ -1167,17 +1179,21 @@ document.addEventListener('DOMContentLoaded', () => {
     const copyText = container.querySelector('.btn-copy-code');
 
     try {
-      await navigator.clipboard.writeText(gameState.roomCode);
+      // Generate shareable URL with room code
+      const baseUrl = window.location.origin + window.location.pathname;
+      const shareableUrl = `${baseUrl}?room=${gameState.roomCode}`;
+
+      await navigator.clipboard.writeText(shareableUrl);
 
       // Visual feedback
       container.classList.add('copied');
-      copyText.textContent = '✓ ¡Copiado!';
-      showToast('Código copiado al portapapeles', 'success');
+      copyText.textContent = '✓ ¡Link copiado!';
+      showToast('Link de invitación copiado al portapapeles', 'success');
 
       // Reset after animation
       setTimeout(() => {
         container.classList.remove('copied');
-        copyText.textContent = '👆 Toca para copiar';
+        copyText.textContent = '👆 Toca para copiar link';
       }, 2000);
     } catch (error) {
       console.error('Error copying to clipboard:', error);
