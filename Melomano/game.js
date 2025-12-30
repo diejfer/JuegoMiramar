@@ -1183,8 +1183,12 @@ document.addEventListener('DOMContentLoaded', () => {
 // Attempt to reconnect to saved room on page load
 window.addEventListener('load', async () => {
   const savedRoom = loadCurrentRoom();
+  const savedPlayer = loadPlayer(); // FIX: Load saved player
+
   if (savedRoom && savedPlayer) {
     try {
+      console.log('[AUTO-RECONNECT] Attempting to reconnect...', { savedRoom, savedPlayer });
+
       // Try to rejoin
       currentPlayer = savedPlayer;
       await initializeAbly();
@@ -1192,7 +1196,7 @@ window.addEventListener('load', async () => {
 
       // Request current state
       const history = await gameChannel.history({ limit: 1 });
-      if (history.items.length > 0) {
+      if (history && history.items && history.items.length > 0) {
         gameState = { ...gameState, ...history.items[0].data };
 
         // Check if still valid
@@ -1200,15 +1204,20 @@ window.addEventListener('load', async () => {
           goToWaitingRoom();
           updateWaitingRoomUI();
           showToast('Reconectado a la sala', 'success');
+          console.log('[AUTO-RECONNECT] Successfully reconnected');
           return;
         }
       }
+
+      console.log('[AUTO-RECONNECT] Reconnection failed - invalid state');
     } catch (error) {
-      console.log('Could not reconnect to previous room');
+      console.log('[AUTO-RECONNECT] Could not reconnect to previous room:', error);
     }
 
     // If reconnection failed, clear and go to lobby
     clearCurrentRoom();
     goToLobby();
+  } else {
+    console.log('[AUTO-RECONNECT] No saved room/player to reconnect');
   }
 });
