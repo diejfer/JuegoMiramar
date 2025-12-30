@@ -545,17 +545,18 @@ async function createRoom() {
 
     // Initialize game state
     gameState.roomCode = roomCode;
+    gameState.state = GameStates.WAITING; // Set state BEFORE publishing
     gameState.players = [{ ...currentPlayer, ready: false, score: 0 }];
     console.log('[CREATE ROOM] Game state initialized:', gameState);
 
-    // Publish initial state
+    // Show waiting room FIRST
+    goToWaitingRoom();
+    updateWaitingRoomUI();
+
+    // Publish initial state AFTER showing UI
     console.log('[CREATE ROOM] Publishing initial state...');
     await gameChannel.publish('state-update', gameState);
     console.log('[CREATE ROOM] Initial state published');
-
-    // Show waiting room
-    goToWaitingRoom();
-    updateWaitingRoomUI();
 
     showToast(`Sala creada: ${roomCode}`, 'success');
     console.log('[CREATE ROOM] Success! Room created:', roomCode);
@@ -605,12 +606,21 @@ async function joinRoom() {
     await connectToRoom(roomCode);
     console.log('[JOIN ROOM] Connected to room channels');
 
+    // Wait a bit for channel to be ready
+    await new Promise(resolve => setTimeout(resolve, 500));
+
     // Request current state
     console.log('[JOIN ROOM] Requesting channel history...');
-    const history = await gameChannel.history({ limit: 1 });
-    console.log('[JOIN ROOM] History received:', history.items.length, 'items');
+    let history = null;
+    try {
+      history = await gameChannel.history({ limit: 1 });
+      console.log('[JOIN ROOM] History result:', history);
+    } catch (historyError) {
+      console.error('[JOIN ROOM] Error getting history:', historyError);
+      console.log('[JOIN ROOM] Continuing without history - room might be new');
+    }
 
-    if (history.items.length > 0) {
+    if (history && history.items && history.items.length > 0) {
       const lastState = history.items[0].data;
       console.log('[JOIN ROOM] Last state found:', lastState);
       gameState = { ...gameState, ...lastState };
@@ -631,7 +641,7 @@ async function joinRoom() {
         return;
       }
     } else {
-      console.log('[JOIN ROOM] No history found - room might not exist or just created');
+      console.log('[JOIN ROOM] No history available - assuming new room');
     }
 
     // Announce join
