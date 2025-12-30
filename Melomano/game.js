@@ -226,12 +226,30 @@ async function initializeAbly() {
       debugLog('Ably suspended');
     });
 
-    return new Promise((resolve) => {
-      ably.connection.once('connected', resolve);
+    ably.connection.on('failed', () => {
+      debugLog('Ably connection failed');
+    });
+
+    // Wait for connection with timeout
+    return new Promise((resolve, reject) => {
+      const timeout = setTimeout(() => {
+        reject(new Error('Connection timeout'));
+      }, 10000); // 10 seconds timeout
+
+      ably.connection.once('connected', () => {
+        clearTimeout(timeout);
+        resolve();
+      });
+
+      ably.connection.once('failed', () => {
+        clearTimeout(timeout);
+        reject(new Error('Connection failed'));
+      });
     });
   } catch (error) {
     console.error('Error initializing Ably:', error);
     showToast('Error de conexión. Por favor, recarga la página.', 'error');
+    throw error;
   }
 }
 
@@ -440,33 +458,43 @@ async function createRoom() {
     return;
   }
 
-  // Create or load player
-  currentPlayer = {
-    id: generatePlayerId(),
-    name: playerName,
-    isHost: true
-  };
-  savePlayer(currentPlayer);
+  try {
+    // Create or load player
+    currentPlayer = {
+      id: generatePlayerId(),
+      name: playerName,
+      isHost: true
+    };
+    savePlayer(currentPlayer);
 
-  // Generate room code
-  const roomCode = generateRoomCode();
+    // Generate room code
+    const roomCode = generateRoomCode();
 
-  // Initialize Ably and connect
-  await initializeAbly();
-  await connectToRoom(roomCode);
+    // Show connecting message
+    showToast('Conectando...', 'info');
 
-  // Initialize game state
-  gameState.roomCode = roomCode;
-  gameState.players = [{ ...currentPlayer, ready: false, score: 0 }];
+    // Initialize Ably and connect
+    await initializeAbly();
+    await connectToRoom(roomCode);
 
-  // Publish initial state
-  await gameChannel.publish('state-update', gameState);
+    // Initialize game state
+    gameState.roomCode = roomCode;
+    gameState.players = [{ ...currentPlayer, ready: false, score: 0 }];
 
-  // Show waiting room
-  goToWaitingRoom();
-  updateWaitingRoomUI();
+    // Publish initial state
+    await gameChannel.publish('state-update', gameState);
 
-  showToast(`Sala creada: ${roomCode}`, 'success');
+    // Show waiting room
+    goToWaitingRoom();
+    updateWaitingRoomUI();
+
+    showToast(`Sala creada: ${roomCode}`, 'success');
+  } catch (error) {
+    console.error('Error creating room:', error);
+    showToast('No se pudo crear la sala. Verificá tu conexión a internet.', 'error');
+    disconnectFromRoom();
+    // Stay on lobby screen
+  }
 }
 
 async function joinRoom() {
