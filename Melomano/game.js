@@ -62,6 +62,7 @@ let gameState = {
 };
 
 let turnTimer = null;
+let validationTimer = null;
 let resultsTimer = null;
 let debugMode = false;
 
@@ -97,6 +98,43 @@ function normalizeText(text) {
     .trim()
     .normalize('NFD')
     .replace(/[\u0300-\u036f]/g, '');
+}
+
+/**
+ * Convert YouTube URL to embed URL
+ * Supports: youtube.com/watch?v=ID, youtu.be/ID, search queries
+ */
+function getYouTubeEmbedUrl(url) {
+  if (!url) return null;
+
+  // Check if it's already an embed URL
+  if (url.includes('/embed/')) {
+    return url;
+  }
+
+  // Extract video ID from youtube.com/watch?v=ID
+  let match = url.match(/[?&]v=([^&]+)/);
+  if (match) {
+    return `https://www.youtube.com/embed/${match[1]}`;
+  }
+
+  // Extract video ID from youtu.be/ID
+  match = url.match(/youtu\.be\/([^?]+)/);
+  if (match) {
+    return `https://www.youtube.com/embed/${match[1]}`;
+  }
+
+  // If it's a search URL, extract the search query and create a search embed
+  match = url.match(/search_query=([^&]+)/);
+  if (match) {
+    const searchTerm = decodeURIComponent(match[1]);
+    // YouTube doesn't support embedding search results directly
+    // So we'll use a regular search URL but opened in iframe won't work
+    // For now, return null and we'll show a message
+    return null;
+  }
+
+  return null;
 }
 
 /**
@@ -418,6 +456,9 @@ function handleGameEvent(event) {
     case 'turn-end':
       handleTurnEnd(event);
       break;
+    case 'next-turn':
+      handleNextTurn(event);
+      break;
     case 'game-over':
       handleGameOver(event);
       break;
@@ -499,6 +540,7 @@ function handleTurnStart(event) {
     startTurnTimer();
   } else {
     renderValidationView();
+    startValidationTimer();
   }
 }
 
@@ -539,7 +581,13 @@ function handleAnswerSubmit(event) {
 }
 
 function handleTurnEnd(event) {
-  // Results are already showing, just wait for countdown
+  // Results are already showing, waiting for manual advancement
+}
+
+function handleNextTurn(event) {
+  // Sync turn number across all players
+  gameState.currentTurn = event.turnNumber;
+  startNextTurn();
 }
 
 function handleGameOver(event) {
@@ -918,8 +966,26 @@ function startTurnTimer() {
   turnTimer = setInterval(updateTimer, 1000); // Update every second
 }
 
+function startValidationTimer() {
+  clearInterval(validationTimer);
+
+  const updateTimer = () => {
+    const elapsed = Date.now() - gameState.turnStartTime;
+
+    // Show elapsed time for validation screen
+    const timerEl = document.getElementById('validation-timer');
+    if (timerEl) {
+      timerEl.textContent = '⏱️ ' + formatTime(elapsed);
+    }
+  };
+
+  updateTimer();
+  validationTimer = setInterval(updateTimer, 1000); // Update every second
+}
+
 async function submitAnswers() {
   clearInterval(turnTimer);
+  clearInterval(validationTimer);
 
   const word1 = document.getElementById('active-word1').value.trim();
   const word2 = document.getElementById('active-word2').value.trim();
@@ -942,6 +1008,9 @@ async function submitAnswers() {
 }
 
 function showTurnResults(playerId, points) {
+  clearInterval(turnTimer);
+  clearInterval(validationTimer);
+
   goToTurnResults();
 
   const card = gameState.cards[gameState.currentTurn];
@@ -982,8 +1051,27 @@ function showTurnResults(playerId, points) {
     `;
   });
 
-  // Video link
-  document.getElementById('results-video-link').href = card.videoLink;
+  // Video embed or link
+  const videoContainer = document.getElementById('results-video-container');
+  videoContainer.innerHTML = '';
+
+  const embedUrl = getYouTubeEmbedUrl(card.videoLink);
+  if (embedUrl) {
+    // Create iframe for direct video links
+    const iframe = document.createElement('iframe');
+    iframe.src = embedUrl;
+    iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture';
+    iframe.allowFullscreen = true;
+    videoContainer.appendChild(iframe);
+  } else {
+    // Fallback: show link to search or video
+    const linkButton = document.createElement('a');
+    linkButton.href = card.videoLink;
+    linkButton.target = '_blank';
+    linkButton.className = 'btn btn-video';
+    linkButton.textContent = '🎵 Buscar en YouTube';
+    videoContainer.appendChild(linkButton);
+  }
 
   // Mini scoreboard
   const miniScoreboard = document.getElementById('mini-scoreboard');
@@ -993,30 +1081,21 @@ function showTurnResults(playerId, points) {
   sortedPlayers.forEach(p => {
     miniScoreboard.innerHTML += `<li>${p.name}: ${p.score || 0} puntos</li>`;
   });
-
-  // Start countdown
-  startResultsCountdown();
 }
 
-function startResultsCountdown() {
-  let countdown = 5;
-  const countdownEl = document.getElementById('countdown-timer');
+async function goToNextTurn() {
+  // Any player can advance to the next turn
+  gameState.currentTurn++;
 
-  clearInterval(resultsTimer);
+  // Publish the advancement to all players
+  if (eventsChannel) {
+    await eventsChannel.publish('next-turn', {
+      type: 'next-turn',
+      turnNumber: gameState.currentTurn
+    });
+  }
 
-  const updateCountdown = () => {
-    countdownEl.textContent = countdown;
-    countdown--;
-
-    if (countdown < 0) {
-      clearInterval(resultsTimer);
-      gameState.currentTurn++;
-      startNextTurn();
-    }
-  };
-
-  updateCountdown();
-  resultsTimer = setInterval(updateCountdown, 1000);
+  startNextTurn();
 }
 
 // ==================== GAME OVER ====================
@@ -1171,6 +1250,12 @@ document.addEventListener('DOMContentLoaded', () => {
     // Focus on name input so user just needs to type name and join
     document.getElementById('player-name').focus();
     showToast('Código de sala detectado! Ingresá tu nombre para unirte', 'info');
+
+    // Hide "Create Room" button to avoid confusion
+    const createRoomBtn = document.getElementById('btn-create-room');
+    const divider = document.querySelector('.divider');
+    if (createRoomBtn) createRoomBtn.style.display = 'none';
+    if (divider) divider.style.display = 'none';
   }
 
   // Load saved player
@@ -1234,6 +1319,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Playing screen
   document.getElementById('btn-submit-answers').addEventListener('click', submitAnswers);
+
+  // Turn results screen
+  document.getElementById('btn-next-turn').addEventListener('click', goToNextTurn);
 
   // Game over buttons
   document.getElementById('btn-play-again').addEventListener('click', playAgain);
