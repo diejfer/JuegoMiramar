@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Mago-Goma - Juego de sílabas multijugador">
+    <title>Mago-Goma - Juego de Sílabas</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Connection Status Banner -->
+    <div id="connection-banner" class="connection-banner hidden">
+        <span id="connection-message">Reconectando...</span>
+    </div>
+
+    <!-- Main Container -->
+    <div id="app" class="container">
+
+        <!-- PANTALLA 1: LOBBY -->
+        <div id="screen-lobby" class="screen active">
+            <header class="app-header">
+                <h1 class="app-title">🎩 Mago-Goma</h1>
+                <p class="app-subtitle">Juego de Sílabas Multijugador</p>
+            </header>
+
+            <div class="lobby-content">
+                <div class="card">
+                    <h2>Bienvenido</h2>
+                    <div class="form-group">
+                        <label for="player-name">Tu nombre:</label>
+                        <input
+                            type="text"
+                            id="player-name"
+                            placeholder="Ingresá tu nombre"
+                            maxlength="20"
+                            autocomplete="off"
+                        >
+                    </div>
+
+                    <div class="button-group">
+                        <button id="btn-create-room" class="btn btn-primary btn-large">
+                            Crear Sala
+                        </button>
+                        <div class="divider">o</div>
+                        <div class="join-room-group">
+                            <input
+                                type="text"
+                                id="room-code-input"
+                                placeholder="Código de sala"
+                                maxlength="5"
+                                autocomplete="off"
+                            >
+                            <button id="btn-join-room" class="btn btn-secondary">
+                                Unirse
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card info-card">
+                    <h3>¿Cómo se juega?</h3>
+                    <ol class="instructions-list">
+                        <li>Cada ronda, todos compiten simultáneamente</li>
+                        <li>Se muestra una palabra al azar</li>
+                        <li>Escribe la primera palabra válida que se te ocurra</li>
+                        <li>El primero que envíe una palabra válida gana 1 punto</li>
+                        <li>La palabra es "mago" si tiene sílabas impares, "goma" si es par</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+
+        <!-- PANTALLA 2: SALA DE ESPERA -->
+        <div id="screen-waiting" class="screen hidden">
+            <header class="screen-header">
+                <h2>Sala de Espera</h2>
+            </header>
+
+            <div class="waiting-content">
+                <div id="room-code-container" class="room-code-display" title="Toca para copiar el link de invitación">
+                    <span class="label">Código de sala</span>
+                    <span id="room-code-display" class="room-code">-----</span>
+                    <span class="btn-copy-code">👆 Toca para copiar link</span>
+                </div>
+
+                <div id="waiting-instructions" class="card info-card">
+                    <h3>⏳ Esperando jugadores...</h3>
+                    <p>Compartí el link con tus amigos para que se unan automáticamente.</p>
+                    <ol class="instructions-list">
+                        <li>Mínimo 2 jugadores para empezar</li>
+                        <li>Todos deben marcar "Listo"</li>
+                        <li>El host inicia el juego</li>
+                    </ol>
+                </div>
+
+                <div class="card">
+                    <h3>Jugadores (<span id="player-count">0</span>/6)</h3>
+                    <ul id="players-list" class="players-list"></ul>
+                </div>
+
+                <div class="waiting-actions">
+                    <button id="btn-ready" class="btn btn-secondary">
+                        <span id="ready-text">Listo</span>
+                    </button>
+                    <button id="btn-start-game" class="btn btn-primary btn-large hidden">
+                        Iniciar Juego
+                    </button>
+                    <button id="btn-leave-room" class="btn btn-outline">
+                        Salir
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- PANTALLA 3: JUGANDO -->
+        <div id="screen-playing" class="screen hidden">
+            <header class="game-header">
+                <div class="game-info">
+                    <span class="round-counter">Ronda <span id="current-round">1</span>/10</span>
+                    <span class="timer" id="round-timer">⏱️ 10</span>
+                </div>
+            </header>
+
+            <div class="game-content">
+                <div class="card card-game">
+                    <div class="starter-word-section">
+                        <h3>Palabra inicial:</h3>
+                        <div id="starter-word" class="starter-word">CASA</div>
+                        <div id="starter-syllables" class="syllables-info">
+                            <span class="syllables-label">Sílabas:</span>
+                            <span id="syllables-display" class="syllables">ca-sa (2)</span>
+                            <span id="word-type" class="word-type goma">GOMA</span>
+                        </div>
+                    </div>
+
+                    <div class="input-section">
+                        <h3>¡Escribí una palabra rápido!</h3>
+                        <div class="input-group">
+                            <input
+                                type="text"
+                                id="word-input"
+                                class="word-input"
+                                placeholder="Tu palabra..."
+                                autocomplete="off"
+                            >
+                            <button id="btn-submit-word" class="btn btn-primary">
+                                Enviar
+                            </button>
+                        </div>
+                        <div id="word-feedback" class="word-feedback hidden"></div>
+                    </div>
+
+                    <div class="live-answers-section">
+                        <h4>Respuestas en vivo:</h4>
+                        <ul id="live-answers" class="live-answers-list"></ul>
+                    </div>
+                </div>
+
+                <div class="scoreboard-mini">
+                    <h4>Puntajes:</h4>
+                    <ul id="game-scoreboard"></ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- PANTALLA 4: RESULTADO DE RONDA -->
+        <div id="screen-round-results" class="screen hidden">
+            <header class="screen-header">
+                <h2>Resultado de la Ronda</h2>
+            </header>
+
+            <div class="results-content">
+                <div class="card">
+                    <div class="winner-announcement">
+                        <div class="winner-icon">🏆</div>
+                        <h3 id="round-winner-name">Jugador</h3>
+                        <p class="winner-message">¡Fue el más rápido!</p>
+                    </div>
+
+                    <div class="round-details">
+                        <p class="round-word">
+                            Palabra ganadora: <strong id="winning-word">---</strong>
+                        </p>
+                        <div id="winning-syllables" class="syllables-info">
+                            <span id="winning-syllables-display">---</span>
+                            <span id="winning-word-type" class="word-type">---</span>
+                        </div>
+                    </div>
+
+                    <div class="all-answers">
+                        <h4>Todas las respuestas:</h4>
+                        <ul id="all-answers-list"></ul>
+                    </div>
+
+                    <div class="next-round-actions">
+                        <button id="btn-next-round" class="btn btn-primary btn-large">
+                            Siguiente Ronda ▶
+                        </button>
+                        <p class="next-round-hint">Cualquier jugador puede continuar</p>
+                    </div>
+                </div>
+
+                <div class="scoreboard-mini">
+                    <h4>Puntajes actuales:</h4>
+                    <ul id="results-scoreboard"></ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- PANTALLA 5: FIN DEL JUEGO -->
+        <div id="screen-game-over" class="screen hidden">
+            <header class="screen-header">
+                <h2>¡Juego Terminado!</h2>
+            </header>
+
+            <div class="gameover-content">
+                <div class="winner-section">
+                    <div class="trophy">🏆</div>
+                    <h3>¡Ganador!</h3>
+                    <p id="winner-name" class="winner-name">---</p>
+                    <p id="winner-score" class="winner-score">0 puntos</p>
+                </div>
+
+                <div class="card">
+                    <h3>Clasificación Final</h3>
+                    <ol id="final-scoreboard" class="final-scoreboard"></ol>
+                </div>
+
+                <div class="gameover-actions">
+                    <button id="btn-play-again" class="btn btn-primary btn-large">
+                        Jugar de Nuevo
+                    </button>
+                    <button id="btn-back-to-lobby" class="btn btn-outline">
+                        Volver al Lobby
+                    </button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Toast Notifications -->
+    <div id="toast-container" class="toast-container"></div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.ably.com/lib/ably.min-1.js"></script>
+    <script src="syllables.js"></script>
+    <script src="game.js"></script>
+</body>
+</html>
