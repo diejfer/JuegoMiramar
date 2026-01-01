@@ -11,7 +11,7 @@ Juego multijugador en tiempo real donde cada ronda los jugadores escriben una pa
 
 ## Reglas
 - 2 a 6 jugadores.
-- La partida termina cuando nadie logra enviar una palabra válida.
+- 10 rondas por partida.
 - 15 segundos por ronda.
 - Cada jugador puede enviar solo una palabra por ronda.
 - La primera palabra válida gana 1 punto.
