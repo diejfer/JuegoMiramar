@@ -19,7 +19,7 @@ REGLAS DEL JUEGO
 
 2. CONFIGURACIÓN DE PARTIDA
    - Jugadores: Mínimo 2, Máximo 6 jugadores
-   - Rondas totales: 10 rondas por partida
+   - Rondas totales: sin límite fijo (termina cuando nadie logra una palabra válida)
    - Tiempo por ronda: 15 segundos
 
 3. MECÁNICA DE JUEGO
@@ -55,7 +55,7 @@ REGLAS DEL JUEGO
        - Se muestra el ganador de la ronda
 
 4. FIN DE PARTIDA
-   - El juego termina después de 10 rondas
+   - El juego termina cuando nadie logra una palabra válida en la ronda
    - Gana el jugador con más puntos acumulados
    - En caso de empate, ambos comparten la victoria
 
@@ -213,13 +213,13 @@ FLUJO DE JUEGO COMPLETO
 2. Jugador crea sala o se une con código
 3. Espera en sala hasta que todos estén listos
 4. HOST inicia el juego
-5. PARA CADA RONDA (1-10):
+5. PARA CADA RONDA:
    a. Se muestra palabra inicial
    b. Jugadores escriben y envían palabra
    c. Primer respuesta válida gana
    d. Se muestran resultados
    e. Cualquier jugador avanza a siguiente ronda
-6. Después de 10 rondas:
+6. Cuando nadie logra una palabra válida:
    a. Se muestra ganador final
    b. Opción de jugar de nuevo o volver al lobby
 

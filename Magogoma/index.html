@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Mago-Goma</title>
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://cdn.ably.com/lib/ably.min-1.js"></script>
+</head>
+<body>
+  <div class="app">
+    <header class="app-header">
+      <div>
+        <h1>Mago-Goma</h1>
+        <p>Competencia de palabras por sílabas</p>
+      </div>
+      <button id="debug-toggle" class="ghost-button" hidden>Debug</button>
+    </header>
+
+    <section id="screen-lobby" class="screen active">
+      <div class="card">
+        <h2>Entrar al juego</h2>
+        <label class="field">
+          <span>Tu nombre</span>
+          <input id="player-name" type="text" placeholder="Ej: Sofía" maxlength="16" />
+        </label>
+        <div class="button-row">
+          <button id="create-room" class="primary">Crear sala</button>
+        </div>
+        <div class="divider">o</div>
+        <label class="field">
+          <span>Código de sala</span>
+          <input id="room-code" type="text" placeholder="ABCDE" maxlength="5" />
+        </label>
+        <div class="button-row">
+          <button id="join-room" class="secondary">Unirse</button>
+        </div>
+      </div>
+      <div class="card">
+        <h3>Cómo se juega</h3>
+        <ul>
+          <li>Sin rondas fijas: la partida termina cuando nadie logra una palabra válida.</li>
+          <li>Enviá una palabra válida antes que el resto.</li>
+          <li>MAGO = sílabas impares, GOMA = sílabas pares.</li>
+          <li>La primera palabra válida suma 1 punto.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section id="screen-room" class="screen">
+      <div class="card">
+        <div class="room-code">
+          <span>Sala</span>
+          <button id="copy-room" class="room-code-value">-----</button>
+          <small>Tap para copiar el link</small>
+        </div>
+        <div class="players">
+          <h3>Jugadores</h3>
+          <ul id="players-list"></ul>
+        </div>
+        <div class="button-row">
+          <button id="ready-button" class="secondary">Estoy listo</button>
+          <button id="start-game" class="primary" disabled>Iniciar juego</button>
+        </div>
+        <button id="leave-room" class="ghost-button">Salir</button>
+      </div>
+    </section>
+
+    <section id="screen-game" class="screen">
+      <div class="card">
+        <div class="round-header">
+          <div>
+            <span>Ronda</span>
+            <strong id="round-counter">1</strong>
+          </div>
+          <div class="timer" id="round-timer">15</div>
+        </div>
+        <div class="word-box">
+          <h2 id="base-word">casa</h2>
+          <p id="syllables">ca-sa</p>
+          <span id="word-type" class="badge">MAGO</span>
+        </div>
+        <label class="field">
+          <span>Tu palabra</span>
+          <input id="word-input" type="text" placeholder="Escribí rápido" autocomplete="off" />
+        </label>
+        <div class="button-row">
+          <button id="send-word" class="primary">Enviar</button>
+        </div>
+        <div class="responses">
+          <h3>Respuestas en vivo</h3>
+          <ul id="responses-list"></ul>
+        </div>
+        <div class="scores">
+          <h3>Puntajes</h3>
+          <ul id="scores-list"></ul>
+        </div>
+      </div>
+    </section>
+
+    <section id="screen-round-result" class="screen">
+      <div class="card">
+        <div class="round-winner" id="round-winner">Sin ganador</div>
+        <div class="responses">
+          <h3>Respuestas</h3>
+          <ul id="round-responses"></ul>
+        </div>
+        <div class="scores">
+          <h3>Puntajes</h3>
+          <ul id="round-scores"></ul>
+        </div>
+        <div class="button-row">
+          <button id="next-round" class="primary">Siguiente ronda</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="screen-game-over" class="screen">
+      <div class="card">
+        <div class="final-winner" id="final-winner">Ganador</div>
+        <div class="scores">
+          <h3>Clasificación final</h3>
+          <ol id="final-scores"></ol>
+        </div>
+        <div class="button-row">
+          <button id="play-again" class="primary">Jugar de nuevo</button>
+          <button id="back-lobby" class="secondary">Volver al lobby</button>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <div id="debug-panel" class="debug-panel" hidden>
+    <div class="debug-header">
+      <strong>Debug</strong>
+      <button id="debug-close">×</button>
+    </div>
+    <pre id="debug-log"></pre>
+  </div>
+
+  <script type="module" src="game.js"></script>
+</body>
+</html>
