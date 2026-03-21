@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Radar Doppler</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #0a0e1a;
+    color: #e0e8ff;
+    font-family: 'Courier New', monospace;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+  }
+  h1 { font-size: 1.4rem; letter-spacing: 4px; color: #4af; margin-bottom: 6px; text-transform: uppercase; }
+  .subtitle { font-size: 0.75rem; color: #556; letter-spacing: 2px; margin-bottom: 24px; }
+  .card { background: #0d1526; border: 1px solid #1e2d50; border-radius: 12px; padding: 20px; width: 100%; max-width: 600px; margin-bottom: 16px; }
+  canvas { width: 100%; height: 120px; display: block; border-radius: 6px; background: #060a14; }
+  #freqDisplay { font-size: 2.8rem; font-weight: bold; color: #4af; text-align: center; letter-spacing: 2px; margin: 12px 0 4px; }
+  #freqLabel { text-align: center; color: #556; font-size: 0.75rem; letter-spacing: 2px; }
+  .phases { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 8px; }
+  .phase-box { background: #060a14; border: 1px solid #1e2d50; border-radius: 8px; padding: 14px; text-align: center; transition: border-color 0.3s; }
+  .phase-box.active { border-color: #4af; }
+  .phase-box.locked { border-color: #2a4; }
+  .phase-label { font-size: 0.65rem; letter-spacing: 2px; color: #556; margin-bottom: 6px; }
+  .phase-freq { font-size: 1.5rem; color: #adf; font-weight: bold; }
+  .phase-freq span { font-size: 0.7rem; color: #556; }
+  .result-box { background: #060a14; border: 2px solid #1e2d50; border-radius: 10px; padding: 20px; text-align: center; margin-top: 8px; transition: border-color 0.4s; }
+  .result-box.show { border-color: #fa4; }
+  .speed-value { font-size: 3.5rem; font-weight: bold; color: #fa4; }
+  .speed-unit { font-size: 1rem; color: #876; margin-left: 6px; }
+  .speed-kmh { font-size: 1.2rem; color: #a85; margin-top: 4px; }
+  .result-detail { font-size: 0.7rem; color: #445; margin-top: 8px; letter-spacing: 1px; }
+  .btn-row { display: flex; gap: 10px; justify-content: center; margin-top: 16px; flex-wrap: wrap; }
+  button { padding: 10px 22px; border: none; border-radius: 6px; font-family: 'Courier New', monospace; font-size: 0.85rem; letter-spacing: 2px; cursor: pointer; text-transform: uppercase; transition: all 0.2s; }
+  #btnStart { background: #1a3a6a; color: #4af; border: 1px solid #4af; }
+  #btnStart:hover { background: #4af; color: #000; }
+  #btnLockApproach { background: #1a3a2a; color: #4fa; border: 1px solid #4fa; }
+  #btnLockApproach:hover { background: #4fa; color: #000; }
+  #btnLockRecede { background: #3a2a1a; color: #fa4; border: 1px solid #fa4; }
+  #btnLockRecede:hover { background: #fa4; color: #000; }
+  #btnReset { background: #1a1a2a; color: #556; border: 1px solid #334; }
+  #btnReset:hover { background: #334; color: #aaa; }
+  button:disabled { opacity: 0.3; cursor: not-allowed; }
+  .status-bar { font-size: 0.7rem; letter-spacing: 2px; color: #445; text-align: center; margin-top: 10px; min-height: 18px; }
+  .status-bar.active { color: #4af; }
+  .status-bar.warn { color: #fa4; }
+  .instructions { font-size: 0.7rem; color: #334; line-height: 1.7; letter-spacing: 1px; margin-top: 8px; padding: 12px; border-top: 1px solid #1a2040; }
+  .instructions b { color: #4af; }
+  .confidence { font-size: 0.65rem; color: #334; text-align: center; margin-top: 6px; }
+  .bar-wrap { background: #0d1526; border-radius: 4px; height: 4px; margin-top: 4px; }
+  .bar-fill { height: 4px; border-radius: 4px; background: #4af; transition: width 0.3s; }
+</style>
+</head>
+<body>
+
+<h1>⚡ Radar Doppler</h1>
+<div class="subtitle">ESTIMADOR DE VELOCIDAD POR EFECTO DOPPLER</div>
+
+<div class="card">
+  <canvas id="spectrumCanvas"></canvas>
+  <div id="freqDisplay">--- Hz</div>
+  <div id="freqLabel">FRECUENCIA DOMINANTE</div>
+  <div class="confidence">
+    Confianza de detección
+    <div class="bar-wrap"><div class="bar-fill" id="confBar" style="width:0%"></div></div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="phases">
+    <div class="phase-box" id="boxApproach">
+      <div class="phase-label">▲ SE ACERCA (f alta)</div>
+      <div class="phase-freq" id="freqApproach">--- <span>Hz</span></div>
+    </div>
+    <div class="phase-box" id="boxRecede">
+      <div class="phase-label">▼ SE ALEJA (f baja)</div>
+      <div class="phase-freq" id="freqRecede">--- <span>Hz</span></div>
+    </div>
+  </div>
+
+  <div class="result-box" id="resultBox">
+    <div style="font-size:0.7rem;color:#445;letter-spacing:2px;margin-bottom:8px;">VELOCIDAD ESTIMADA</div>
+    <div><span class="speed-value" id="speedMs">--</span><span class="speed-unit">m/s</span></div>
+    <div class="speed-kmh" id="speedKmh">-- km/h</div>
+    <div class="result-detail" id="resultDetail">Capturá ambas frecuencias para calcular</div>
+  </div>
+
+  <div class="btn-row">
+    <button id="btnStart">▶ Iniciar</button>
+    <button id="btnLockApproach" disabled>⬆ Bloquear Acercamiento</button>
+    <button id="btnLockRecede" disabled>⬇ Bloquear Alejamiento</button>
+    <button id="btnReset">↺ Reset</button>
+  </div>
+
+  <div class="status-bar" id="statusBar">Presioná INICIAR para abrir el micrófono</div>
+</div>
+
+<div class="card instructions">
+  <b>CÓMO USAR:</b><br>
+  1. Presioná <b>Iniciar</b> para activar el micrófono<br>
+  2. Cuando el objeto se esté <b>acercando</b>, presioná <b>Bloquear Acercamiento</b><br>
+  3. Cuando el objeto se esté <b>alejando</b>, presioná <b>Bloquear Alejamiento</b><br>
+  4. La velocidad se calcula automáticamente<br><br>
+  <b>NOTA:</b> Funciona mejor con sonidos de frecuencia estable (motor, sirena, tono continuo).
+  La velocidad del sonido usada es <b>343 m/s</b> (aire a 20°C).
+</div>
+
+<script>
+const SPEED_OF_SOUND = 343;
+
+let audioCtx, analyser, source, stream;
+let animFrame;
+let running = false;
+let freqApproach = null, freqRecede = null;
+
+const canvas = document.getElementById('spectrumCanvas');
+const ctx = canvas.getContext('2d');
+const freqDisplay = document.getElementById('freqDisplay');
+const freqApproachEl = document.getElementById('freqApproach');
+const freqRecedeEl = document.getElementById('freqRecede');
+const speedMsEl = document.getElementById('speedMs');
+const speedKmhEl = document.getElementById('speedKmh');
+const resultDetail = document.getElementById('resultDetail');
+const resultBox = document.getElementById('resultBox');
+const statusBar = document.getElementById('statusBar');
+const confBar = document.getElementById('confBar');
+const boxApproach = document.getElementById('boxApproach');
+const boxRecede = document.getElementById('boxRecede');
+const btnStart = document.getElementById('btnStart');
+const btnLockApproach = document.getElementById('btnLockApproach');
+const btnLockRecede = document.getElementById('btnLockRecede');
+const btnReset = document.getElementById('btnReset');
+
+function setStatus(msg, type='') {
+  statusBar.textContent = msg;
+  statusBar.className = 'status-bar' + (type ? ' '+type : '');
+}
+
+async function startMic() {
+  try {
+    stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    analyser = audioCtx.createAnalyser();
+    analyser.fftSize = 8192;
+    analyser.smoothingTimeConstant = 0.7;
+    source = audioCtx.createMediaStreamSource(stream);
+    source.connect(analyser);
+    running = true;
+    btnStart.disabled = true;
+    btnLockApproach.disabled = false;
+    btnLockRecede.disabled = false;
+    setStatus('Micrófono activo — escuchando...', 'active');
+    draw();
+  } catch(e) {
+    setStatus('Error al acceder al micrófono: ' + e.message, 'warn');
+  }
+}
+
+function getDominantFreq() {
+  const bufLen = analyser.frequencyBinCount;
+  const dataArr = new Float32Array(bufLen);
+  analyser.getFloatFrequencyData(dataArr);
+  const sampleRate = audioCtx.sampleRate;
+  const nyquist = sampleRate / 2;
+  const minBin = Math.floor(80 / nyquist * bufLen);
+  const maxBin = Math.floor(4000 / nyquist * bufLen);
+
+  let maxVal = -Infinity, maxBinIdx = minBin;
+  for (let i = minBin; i < maxBin; i++) {
+    if (dataArr[i] > maxVal) { maxVal = dataArr[i]; maxBinIdx = i; }
+  }
+
+  let freq;
+  if (maxBinIdx > 0 && maxBinIdx < bufLen - 1) {
+    const alpha = dataArr[maxBinIdx - 1];
+    const beta  = dataArr[maxBinIdx];
+    const gamma = dataArr[maxBinIdx + 1];
+    const denom = alpha - 2*beta + gamma;
+    freq = denom !== 0
+      ? (maxBinIdx + 0.5 * (alpha - gamma) / denom) * nyquist / bufLen
+      : maxBinIdx * nyquist / bufLen;
+  } else {
+    freq = maxBinIdx * nyquist / bufLen;
+  }
+
+  const noise = dataArr.slice(minBin, maxBin).reduce((a,b)=>a+b,0)/(maxBin-minBin);
+  const confidence = Math.max(0, Math.min(100, (maxVal - noise) * 2));
+  return { freq, confidence };
+}
+
+function draw() {
+  if (!running) return;
+  animFrame = requestAnimationFrame(draw);
+
+  const bufLen = analyser.frequencyBinCount;
+  const dataArr = new Uint8Array(bufLen);
+  analyser.getByteFrequencyData(dataArr);
+
+  const W = canvas.width = canvas.offsetWidth * (window.devicePixelRatio || 1);
+  const H = canvas.height = 120 * (window.devicePixelRatio || 1);
+  ctx.clearRect(0, 0, W, H);
+
+  const sampleRate = audioCtx.sampleRate;
+  const nyquist = sampleRate / 2;
+  const maxFreqShow = 4000;
+  const maxBinShow = Math.floor(maxFreqShow / nyquist * bufLen);
+  const barW = W / maxBinShow;
+
+  for (let i = 0; i < maxBinShow; i++) {
+    const v = dataArr[i] / 255;
+    const h = v * H;
+    const hue = 200 + v * 60;
+    ctx.fillStyle = `hsla(${hue}, 80%, ${30 + v*40}%, 0.9)`;
+    ctx.fillRect(i * barW, H - h, Math.max(1, barW - 0.5), h);
+  }
+
+  if (freqApproach) {
+    const x = (freqApproach / maxFreqShow) * W;
+    ctx.strokeStyle = '#4fa'; ctx.lineWidth = 2; ctx.setLineDash([4,4]);
+    ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,H); ctx.stroke(); ctx.setLineDash([]);
+  }
+  if (freqRecede) {
+    const x = (freqRecede / maxFreqShow) * W;
+    ctx.strokeStyle = '#fa4'; ctx.lineWidth = 2; ctx.setLineDash([4,4]);
+    ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,H); ctx.stroke(); ctx.setLineDash([]);
+  }
+
+  const { freq, confidence } = getDominantFreq();
+  freqDisplay.textContent = freq.toFixed(1) + ' Hz';
+  confBar.style.width = confidence.toFixed(0) + '%';
+  confBar.style.background = confidence > 60 ? '#4af' : confidence > 30 ? '#fa4' : '#f44';
+}
+
+function lockApproach() {
+  const { freq } = getDominantFreq();
+  freqApproach = freq;
+  freqApproachEl.innerHTML = freq.toFixed(1) + ' <span>Hz</span>';
+  boxApproach.classList.add('locked');
+  setStatus('Frecuencia de acercamiento bloqueada. Esperá que el objeto se aleje.', 'active');
+  tryCalculate();
+}
+
+function lockRecede() {
+  const { freq } = getDominantFreq();
+  freqRecede = freq;
+  freqRecedeEl.innerHTML = freq.toFixed(1) + ' <span>Hz</span>';
+  boxRecede.classList.add('locked');
+  setStatus('Frecuencia de alejamiento bloqueada.', 'active');
+  tryCalculate();
+}
+
+function tryCalculate() {
+  if (!freqApproach || !freqRecede) return;
+  const fHigh = Math.max(freqApproach, freqRecede);
+  const fLow  = Math.min(freqApproach, freqRecede);
+  if (fHigh === fLow) { resultDetail.textContent = 'Las frecuencias son iguales — sin efecto Doppler.'; return; }
+  const v = SPEED_OF_SOUND * (fHigh - fLow) / (fHigh + fLow);
+  const vKmh = v * 3.6;
+  speedMsEl.textContent = v.toFixed(1);
+  speedKmhEl.textContent = vKmh.toFixed(1) + ' km/h';
+  resultDetail.textContent = `f_acercamiento=${fHigh.toFixed(1)} Hz | f_alejamiento=${fLow.toFixed(1)} Hz | Δf=${(fHigh-fLow).toFixed(1)} Hz`;
+  resultBox.classList.add('show');
+  setStatus('✓ Velocidad calculada.', 'active');
+}
+
+function reset() {
+  freqApproach = null; freqRecede = null;
+  freqApproachEl.innerHTML = '--- <span>Hz</span>';
+  freqRecedeEl.innerHTML = '--- <span>Hz</span>';
+  speedMsEl.textContent = '--'; speedKmhEl.textContent = '-- km/h';
+  resultDetail.textContent = 'Capturá ambas frecuencias para calcular';
+  resultBox.classList.remove('show');
+  boxApproach.classList.remove('locked');
+  boxRecede.classList.remove('locked');
+  setStatus('Reset. Podés capturar nuevas frecuencias.', '');
+}
+
+btnStart.addEventListener('click', startMic);
+btnLockApproach.addEventListener('click', lockApproach);
+btnLockRecede.addEventListener('click', lockRecede);
+btnReset.addEventListener('click', reset);
+</script>
+</body>
+</html>
