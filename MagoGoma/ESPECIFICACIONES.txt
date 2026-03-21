@@ -1,0 +1,301 @@
+================================================================================
+                    MAGO-GOMA - ESPECIFICACIONES DEL JUEGO
+================================================================================
+
+DESCRIPCIÓN GENERAL
+-------------------
+Mago-Goma es un juego multijugador en tiempo real de competencia de palabras
+basado en el conteo de sílabas. Los jugadores compiten simultáneamente para
+ser el primero en escribir una palabra válida en cada ronda.
+
+
+REGLAS DEL JUEGO
+----------------
+
+1. CONCEPTO BASE
+   - Cada palabra se clasifica como "MAGO" o "GOMA" según su número de sílabas
+   - MAGO: Palabras con número IMPAR de sílabas (1, 3, 5, 7, etc.)
+   - GOMA: Palabras con número PAR de sílabas (2, 4, 6, 8, etc.)
+
+2. CONFIGURACIÓN DE PARTIDA
+   - Jugadores: Mínimo 2, Máximo 6 jugadores
+   - Rondas totales: 10 rondas por partida
+   - Tiempo por ronda: 15 segundos
+
+3. MECÁNICA DE JUEGO
+
+   3.1 Inicio de Ronda
+       - Se muestra una palabra inicial al azar
+       - Se indica su división en sílabas
+       - Se muestra su clasificación (MAGO o GOMA)
+       - Comienza el temporizador de 15 segundos
+
+   3.2 Durante la Ronda
+       - TODOS los jugadores compiten simultáneamente
+       - Cada jugador escribe UNA palabra
+       - Solo pueden enviar UNA respuesta por ronda
+       - Las respuestas se envían en tiempo real al servidor
+       - Todos pueden ver las respuestas de los demás en vivo
+
+   3.3 Validación de Palabras
+       - La palabra debe tener mínimo 2 letras
+       - Solo se permiten letras del alfabeto español (a-z, á, é, í, ó, ú, ü, ñ)
+       - No se permiten números ni caracteres especiales
+       - Se ignoran mayúsculas/minúsculas y tildes para comparación
+
+   3.4 Sistema de Puntos
+       - El PRIMER jugador en enviar una palabra VÁLIDA gana 1 punto
+       - Los demás jugadores NO ganan puntos en esa ronda
+       - Si nadie envía una palabra válida antes del tiempo, nadie gana puntos
+
+   3.5 Fin de Ronda
+       - La ronda termina cuando el primer jugador envía una palabra válida
+       - O cuando se agota el tiempo (15 segundos)
+       - Se muestran todas las respuestas ordenadas por tiempo de envío
+       - Se muestra el ganador de la ronda
+
+4. FIN DE PARTIDA
+   - El juego termina después de 10 rondas
+   - Gana el jugador con más puntos acumulados
+   - En caso de empate, ambos comparten la victoria
+
+
+DIVISIÓN DE SÍLABAS EN ESPAÑOL
+-------------------------------
+
+REGLAS DE SILABEO IMPLEMENTADAS:
+
+1. SEPARACIÓN BÁSICA
+   - Vocal + Consonante + Vocal → Separar (ej: "ca-sa")
+   - La consonante va con la vocal siguiente
+
+2. GRUPOS CONSONÁNTICOS
+   - Grupos inseparables (van juntos): bl, br, cl, cr, dr, fl, fr, gl, gr, pl, pr, tr, ch, ll, rr
+   - Ejemplos: "pa-la-bra", "glo-bo", "pe-rro"
+   - Dos consonantes que NO forman grupo → se separan
+   - Ejemplos: "al-to", "car-ta", "ac-ción"
+
+3. DIPTONGOS E HIATOS
+   - Dos vocales FUERTES juntas (a, e, o) → se separan (hiato)
+     Ejemplo: "ca-er", "le-ón"
+   - Vocal fuerte + débil acentuada (í, ú) → se separan
+     Ejemplo: "pa-ís", "ba-úl"
+   - Vocal débil + vocal fuerte → generalmente juntas (diptongo)
+     Ejemplo: "cue-va", "tie-rra"
+
+4. CASOS ESPECIALES
+   - Palabras con tilde: La tilde puede forzar separación en hiatos
+   - Ejemplo: "Ma-rí-a" (3 sílabas), "ma-ria" sin tilde sería diptongo
+
+
+FUNCIONALIDADES MULTIJUGADOR
+-----------------------------
+
+1. SALA DE ESPERA
+   - Crear sala: Genera código de 5 caracteres (letras y números)
+   - Unirse a sala: Ingresar código de sala
+   - Compartir link: URL con código de sala pre-cargado
+   - Estado de jugadores: Mostrar quién está "Listo"
+   - Iniciar juego: Solo el HOST cuando todos estén listos
+
+2. SINCRONIZACIÓN EN TIEMPO REAL
+   - Usar WebSockets o servicio de mensajería (ej: Ably, Pusher)
+   - Eventos a sincronizar:
+     * player-join: Jugador se une
+     * player-leave: Jugador abandona
+     * player-ready: Jugador marca listo
+     * game-start: Inicio de partida
+     * round-start: Inicio de ronda
+     * word-submit: Envío de palabra
+     * round-end: Fin de ronda
+     * game-over: Fin de partida
+
+3. GESTIÓN DE ESTADO
+   - Estado del juego debe estar sincronizado entre todos los clientes
+   - El HOST actúa como autoridad para decisiones críticas
+   - Todos los clientes validan palabras localmente para feedback inmediato
+   - El servidor (o HOST) determina el ganador oficial
+
+
+INTERFAZ DE USUARIO
+--------------------
+
+1. PANTALLA DE LOBBY
+   - Input: Nombre del jugador
+   - Botón: Crear Sala
+   - Input: Código de sala
+   - Botón: Unirse a Sala
+   - Instrucciones del juego
+
+2. PANTALLA DE SALA DE ESPERA
+   - Código de sala destacado (grande, copiable)
+   - Botón para copiar link de invitación
+   - Lista de jugadores con estado (Listo/Esperando)
+   - Botón "Listo" para cada jugador
+   - Botón "Iniciar Juego" (solo visible para HOST cuando todos listos)
+   - Botón "Salir"
+
+3. PANTALLA DE JUEGO
+   - Header con: Ronda actual (X/10), Temporizador
+   - Palabra inicial destacada
+   - División en sílabas visible
+   - Etiqueta MAGO/GOMA con colores distintivos
+   - Input grande para escribir palabra
+   - Botón "Enviar"
+   - Sección "Respuestas en vivo" con:
+     * Nombre del jugador
+     * Palabra escrita
+     * Sílabas y tipo (MAGO/GOMA)
+     * Tiempo de respuesta
+   - Tabla de puntajes actualizada
+
+4. PANTALLA DE RESULTADOS DE RONDA
+   - Anuncio del ganador
+   - Palabra ganadora destacada
+   - Lista de todas las respuestas con tiempos
+   - Tabla de puntajes actualizada
+   - Botón "Siguiente Ronda" (cualquier jugador puede avanzar)
+
+5. PANTALLA DE FIN DE JUEGO
+   - Trofeo y anuncio del ganador
+   - Clasificación final ordenada por puntos
+   - Botón "Jugar de Nuevo" (solo HOST)
+   - Botón "Volver al Lobby"
+
+
+BANCO DE PALABRAS INICIALES
+----------------------------
+Se sugiere usar un conjunto rotativo de palabras variadas:
+
+- 2 sílabas: casa, perro, árbol, mesa, libro
+- 3 sílabas: ventana, mariposa, pelota, guitarra
+- 4 sílabas: computadora, elefante, chocolate, biblioteca
+- 5+ sílabas: refrigerador, murciélago, universidad, matemática
+
+IMPORTANTE: Rotar aleatoriamente entre las palabras disponibles.
+
+
+CONSIDERACIONES TÉCNICAS
+-------------------------
+
+1. ALMACENAMIENTO LOCAL
+   - Guardar nombre del jugador en localStorage
+   - Guardar sala actual (para reconexión)
+   - Prefijo de almacenamiento: "JM:magogoma:"
+
+2. RECONEXIÓN
+   - Si el jugador se desconecta y vuelve
+   - Intentar reconectar a la última sala activa
+   - Mantener su puntaje y estado
+
+3. MANEJO DE DESCONEXIONES
+   - Si un jugador se desconecta durante el juego:
+     * Mantener su puntaje
+     * Permitir que el juego continúe con los demás
+   - Si el HOST se desconecta:
+     * Transferir rol de HOST al siguiente jugador
+
+4. VALIDACIÓN
+   - Validar palabras en CLIENTE (feedback inmediato)
+   - Validar palabras en SERVIDOR (decisión oficial)
+   - División de sílabas debe ser consistente entre cliente y servidor
+
+5. SEGURIDAD
+   - No confiar solo en validación del cliente
+   - Verificar en servidor que el jugador no envíe múltiples respuestas
+   - Validar timestamps para evitar trampa
+
+
+FLUJO DE JUEGO COMPLETO
+------------------------
+
+1. Jugador entra al lobby
+2. Jugador crea sala o se une con código
+3. Espera en sala hasta que todos estén listos
+4. HOST inicia el juego
+5. PARA CADA RONDA (1-10):
+   a. Se muestra palabra inicial
+   b. Jugadores escriben y envían palabra
+   c. Primer respuesta válida gana
+   d. Se muestran resultados
+   e. Cualquier jugador avanza a siguiente ronda
+6. Después de 10 rondas:
+   a. Se muestra ganador final
+   b. Opción de jugar de nuevo o volver al lobby
+
+
+EXPERIENCIA DE USUARIO
+-----------------------
+
+1. FEEDBACK VISUAL
+   - Colores distintivos:
+     * MAGO: Naranja/Amarillo
+     * GOMA: Verde
+   - Animaciones suaves para transiciones
+   - Indicador visual cuando se envía respuesta
+   - Confeti o celebración para el ganador
+
+2. MENSAJES/TOASTS
+   - "X se unió a la sala"
+   - "Esperando que todos estén listos"
+   - "¡El juego comienza!"
+   - "Ya enviaste una respuesta"
+   - "Link copiado al portapapeles"
+
+3. RESPONSIVIDAD
+   - Funcionar bien en móviles
+   - Teclado accesible para escribir rápido
+   - Botones grandes y táctiles
+
+4. ACCESIBILIDAD
+   - Input de texto debe tener autofocus en pantalla de juego
+   - Enter debe enviar la respuesta
+   - Textos legibles con buen contraste
+
+
+VARIANTES OPCIONALES
+---------------------
+
+1. MODO EDUCATIVO
+   - Mostrar división de sílabas de todas las palabras
+   - Explicar por qué es MAGO o GOMA
+
+2. DIFICULTAD VARIABLE
+   - Fácil: Solo palabras de 2-3 sílabas
+   - Difícil: Palabras de 4+ sílabas
+
+3. TEMAS
+   - Palabras por categoría: animales, comida, deportes, etc.
+
+4. MODO PRÁCTICA
+   - Jugar solo para practicar
+   - Sin límite de tiempo
+
+
+TECNOLOGÍAS SUGERIDAS
+----------------------
+
+Frontend:
+- HTML5, CSS3, JavaScript vanilla o framework (React, Vue)
+- LocalStorage para persistencia
+- Responsive design
+
+Backend/Multijugador:
+- Ably Realtime (usado en implementación actual)
+- Alternativas: Pusher, Socket.io, Firebase Realtime Database
+- REST API para gestión de salas (opcional)
+
+Hosting:
+- GitHub Pages (frontend estático)
+- Vercel, Netlify
+- Servidor propio con Node.js/Express
+
+================================================================================
+                            FIN DE ESPECIFICACIONES
+================================================================================
+
+NOTAS PARA EL DESARROLLADOR:
+- Este documento describe la implementación actual del juego
+- Implementado con Ably para multijugador en tiempo real
+- Ver archivos: game.js, syllables.js, index.html, style.css
+- Basado en el mismo patrón que el juego "Melómano" del proyecto
