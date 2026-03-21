@@ -259,6 +259,38 @@
     margin-top: 8px;
   }
   .dop-instructions b { color: #00d9ff; font-weight: 600; }
+  .dop-explanation {
+    font-size: 0.9rem;
+    color: #a0aec0;
+    line-height: 1.8;
+    letter-spacing: 0.5px;
+    padding-top: 20px;
+    border-top: 1px solid #0f3460;
+    margin-top: 16px;
+  }
+  .dop-explanation h3 {
+    color: #00ff88;
+    font-size: 1rem;
+    margin-bottom: 12px;
+    letter-spacing: 1px;
+  }
+  .dop-explanation b { color: #00d9ff; font-weight: 600; }
+  .dop-explanation .formula {
+    background: #0f3460;
+    padding: 12px;
+    border-radius: 8px;
+    margin: 12px 0;
+    text-align: center;
+    font-family: 'Courier New', monospace;
+    border: 1px solid #1a1a2e;
+  }
+  .dop-explanation .example {
+    background: rgba(0, 217, 255, 0.05);
+    padding: 10px;
+    border-radius: 6px;
+    margin: 8px 0;
+    border-left: 2px solid #00d9ff;
+  }
 </style>
 </head>
 <body>
@@ -309,6 +341,57 @@
     3. Cuando se <b>aleje</b>, presioná <b>Alejamiento</b><br>
     4. La velocidad se calcula automáticamente<br><br>
     Velocidad del sonido usada: <b>343 m/s</b> (aire a 20°C)
+  </div>
+
+  <div class="dop-explanation">
+    <h3>📚 ¿CÓMO FUNCIONA EL CÁLCULO?</h3>
+
+    <b>El Efecto Doppler</b> es el fenómeno que hace que el sonido cambie de tono cuando una fuente se mueve. Seguro lo notaste cuando una ambulancia pasa cerca de vos: el sonido es <b>más agudo</b> cuando se acerca y <b>más grave</b> cuando se aleja.
+
+    <br><br>
+    <b>¿Por qué pasa esto?</b><br>
+    Imaginate que el objeto emite ondas de sonido como si fueran olas en un estanque:
+    <br><br>
+    ◆ Cuando se <b>ACERCA</b>: las ondas se "comprimen" → la frecuencia es <b>MÁS ALTA</b> (sonido agudo)<br>
+    ◆ Cuando se <b>ALEJA</b>: las ondas se "estiran" → la frecuencia es <b>MÁS BAJA</b> (sonido grave)
+
+    <div class="example">
+      📌 <b>Ejemplo:</b> Si un objeto emite un sonido de 440 Hz al acercarse, podría escucharse a 460 Hz. Al alejarse, podría bajar a 420 Hz.
+    </div>
+
+    <br>
+    <b>🧮 La Fórmula que Usamos</b><br>
+    Conociendo ambas frecuencias (alta y baja), podemos calcular la velocidad del objeto:
+
+    <div class="formula">
+      v = V × (f_alta - f_baja) / (f_alta + f_baja)
+    </div>
+
+    Donde:<br>
+    • <b>v</b> = velocidad del objeto (lo que queremos calcular)<br>
+    • <b>V</b> = velocidad del sonido (343 m/s en el aire)<br>
+    • <b>f_alta</b> = frecuencia cuando se acerca<br>
+    • <b>f_baja</b> = frecuencia cuando se aleja
+
+    <div class="example">
+      📌 <b>Ejemplo numérico:</b><br>
+      Si f_alta = 460 Hz y f_baja = 420 Hz:<br><br>
+      v = 343 × (460 - 420) / (460 + 420)<br>
+      v = 343 × 40 / 880<br>
+      v = 343 × 0.045<br>
+      v = <b>15.6 m/s</b> (aprox. 56 km/h)
+    </div>
+
+    <br>
+    <b>⚠️ Limitaciones Importantes</b><br>
+    • Funciona mejor con sonidos <b>constantes y puros</b> (como un silbato o motor eléctrico)<br>
+    • El objeto debe moverse <b>directamente hacia/desde el micrófono</b><br>
+    • Velocidades muy rápidas pueden ser difíciles de medir con precisión<br>
+    • Ruidos de fondo pueden afectar la detección
+
+    <br><br>
+    <b>🎯 ¿Para qué sirve?</b><br>
+    Esta técnica se usa en <b>radares de tráfico</b>, <b>medicina</b> (ecocardiogramas Doppler), <b>meteorología</b> (radares para medir vientos), y hasta en <b>astronomía</b> para medir la velocidad de estrellas y galaxias.
   </div>
 </div>
 
