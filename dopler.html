@@ -7,80 +7,87 @@
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body {
-    background: #f0ede8;
-    color: #2c2c2a;
+    background: #1a1a2e;
+    color: #ffffff;
     font-family: 'Courier New', monospace;
     min-height: 100vh;
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 20px;
+    padding: 30px 20px;
   }
   .dop-title {
-    font-size: 1.1rem;
-    letter-spacing: 4px;
-    color: #2c2c2a;
+    font-size: 2rem;
+    letter-spacing: 6px;
+    color: #00d9ff;
     text-align: center;
-    font-weight: 500;
-    margin-bottom: 4px;
+    font-weight: 600;
+    margin-bottom: 8px;
     margin-top: 10px;
     text-transform: uppercase;
+    text-shadow: 0 0 20px rgba(0, 217, 255, 0.5);
   }
   .dop-subtitle {
-    font-size: 0.65rem;
-    color: #888780;
+    font-size: 1rem;
+    color: #a0aec0;
     letter-spacing: 2px;
     text-align: center;
-    margin-bottom: 20px;
+    margin-bottom: 30px;
   }
   .dop-card {
-    background: #ffffff;
-    border: 0.5px solid #b4b2a9;
-    border-radius: 12px;
-    padding: 16px;
+    background: #16213e;
+    border: 2px solid #0f3460;
+    border-radius: 16px;
+    padding: 24px;
     width: 100%;
     max-width: 600px;
-    margin-bottom: 12px;
+    margin-bottom: 20px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
   }
   canvas#spectrumCanvas {
     width: 100%;
-    height: 110px;
+    height: 140px;
     display: block;
-    border-radius: 6px;
-    background: #060a14;
+    border-radius: 10px;
+    background: #0a0e1a;
+    border: 1px solid #0f3460;
   }
   .dop-freq-big {
-    font-size: 2.4rem;
-    font-weight: 500;
-    color: #2c2c2a;
+    font-size: 3rem;
+    font-weight: 600;
+    color: #00ff88;
     text-align: center;
     letter-spacing: 2px;
-    margin: 10px 0 2px;
+    margin: 16px 0 4px;
+    text-shadow: 0 0 20px rgba(0, 255, 136, 0.4);
   }
   .dop-freq-label {
     text-align: center;
-    color: #888780;
-    font-size: 0.7rem;
+    color: #a0aec0;
+    font-size: 1rem;
     letter-spacing: 2px;
+    font-weight: 500;
   }
   .dop-conf-label {
-    font-size: 0.65rem;
-    color: #888780;
+    font-size: 0.95rem;
+    color: #a0aec0;
     text-align: center;
-    margin-top: 8px;
+    margin-top: 12px;
+    font-weight: 500;
   }
   .dop-bar-wrap {
-    background: #f1efe8;
-    border-radius: 4px;
-    height: 5px;
-    margin-top: 4px;
-    border: 0.5px solid #d3d1c7;
+    background: #0f3460;
+    border-radius: 8px;
+    height: 10px;
+    margin-top: 8px;
+    border: 1px solid #1a1a2e;
   }
   .dop-bar-fill {
-    height: 5px;
-    border-radius: 4px;
-    background: #378ADD;
+    height: 10px;
+    border-radius: 8px;
+    background: linear-gradient(90deg, #00d9ff, #00ff88);
     transition: width 0.3s;
+    box-shadow: 0 0 10px rgba(0, 255, 136, 0.5);
   }
   .dop-phases {
     display: grid;
@@ -89,74 +96,81 @@
     margin-bottom: 12px;
   }
   .dop-phase-box {
-    background: #f1efe8;
-    border: 0.5px solid #b4b2a9;
-    border-radius: 8px;
-    padding: 12px;
+    background: #0f3460;
+    border: 2px solid #1a1a2e;
+    border-radius: 12px;
+    padding: 20px;
     text-align: center;
-    transition: border-color 0.3s, background 0.3s;
+    transition: all 0.3s;
   }
   .dop-phase-box.locked-approach {
-    border: 1.5px solid #1D9E75;
-    background: #E1F5EE;
+    border: 2px solid #00ff88;
+    background: rgba(0, 255, 136, 0.1);
+    box-shadow: 0 0 20px rgba(0, 255, 136, 0.3);
   }
   .dop-phase-box.locked-recede {
-    border: 1.5px solid #BA7517;
-    background: #FAEEDA;
+    border: 2px solid #ff6b35;
+    background: rgba(255, 107, 53, 0.1);
+    box-shadow: 0 0 20px rgba(255, 107, 53, 0.3);
   }
   .dop-phase-label {
-    font-size: 0.6rem;
+    font-size: 0.9rem;
     letter-spacing: 1.5px;
-    color: #5f5e5a;
-    margin-bottom: 6px;
+    color: #a0aec0;
+    margin-bottom: 8px;
+    font-weight: 500;
   }
   .dop-phase-freq {
-    font-size: 1.3rem;
-    color: #2c2c2a;
-    font-weight: 500;
+    font-size: 1.8rem;
+    color: #ffffff;
+    font-weight: 600;
   }
   .dop-phase-freq .unit {
-    font-size: 0.7rem;
-    color: #888780;
+    font-size: 1rem;
+    color: #a0aec0;
   }
   .dop-result-box {
-    background: #f1efe8;
-    border: 0.5px solid #b4b2a9;
-    border-radius: 8px;
-    padding: 16px;
+    background: #0f3460;
+    border: 2px solid #1a1a2e;
+    border-radius: 12px;
+    padding: 24px;
     text-align: center;
-    margin-bottom: 12px;
-    transition: border-color 0.4s, background 0.4s;
+    margin-bottom: 20px;
+    transition: all 0.4s;
   }
   .dop-result-box.show {
-    border: 1.5px solid #BA7517;
-    background: #FAEEDA;
+    border: 2px solid #ff6b35;
+    background: rgba(255, 107, 53, 0.1);
+    box-shadow: 0 0 30px rgba(255, 107, 53, 0.4);
   }
   .dop-result-title {
-    font-size: 0.65rem;
+    font-size: 1rem;
     letter-spacing: 2px;
-    color: #888780;
-    margin-bottom: 8px;
+    color: #a0aec0;
+    margin-bottom: 12px;
+    font-weight: 500;
   }
   .dop-speed-ms {
-    font-size: 3rem;
-    font-weight: 500;
-    color: #2c2c2a;
+    font-size: 3.5rem;
+    font-weight: 700;
+    color: #00d9ff;
+    text-shadow: 0 0 20px rgba(0, 217, 255, 0.5);
   }
   .dop-speed-unit {
-    font-size: 0.9rem;
-    color: #888780;
-    margin-left: 4px;
+    font-size: 1.2rem;
+    color: #a0aec0;
+    margin-left: 6px;
   }
   .dop-speed-kmh {
-    font-size: 1.1rem;
-    color: #5f5e5a;
-    margin-top: 4px;
+    font-size: 1.4rem;
+    color: #ffffff;
+    margin-top: 8px;
+    font-weight: 600;
   }
   .dop-result-detail {
-    font-size: 0.65rem;
-    color: #888780;
-    margin-top: 8px;
+    font-size: 0.9rem;
+    color: #a0aec0;
+    margin-top: 12px;
     letter-spacing: 0.5px;
     word-break: break-all;
   }
@@ -168,49 +182,83 @@
     margin-bottom: 10px;
   }
   .dop-btn {
-    padding: 8px 14px;
-    border-radius: 8px;
+    padding: 12px 20px;
+    border-radius: 10px;
     font-family: 'Courier New', monospace;
-    font-size: 0.72rem;
+    font-size: 0.9rem;
     letter-spacing: 1.5px;
     cursor: pointer;
     text-transform: uppercase;
-    font-weight: 500;
-    transition: all 0.15s;
-    border: 0.5px solid #b4b2a9;
-    background: #ffffff;
-    color: #2c2c2a;
+    font-weight: 600;
+    transition: all 0.2s;
+    border: 2px solid;
+    background: transparent;
+    color: #ffffff;
   }
-  .dop-btn:hover:not(:disabled) { background: #f1efe8; }
-  .dop-btn:disabled { opacity: 0.35; cursor: not-allowed; }
-  .dop-btn-start { border-color: #378ADD; color: #185FA5; background: #E6F1FB; }
-  .dop-btn-start:hover:not(:disabled) { background: #378ADD; color: #fff; }
-  .dop-btn-approach { border-color: #1D9E75; color: #085041; background: #E1F5EE; }
-  .dop-btn-approach:hover:not(:disabled) { background: #1D9E75; color: #fff; }
-  .dop-btn-recede { border-color: #BA7517; color: #633806; background: #FAEEDA; }
-  .dop-btn-recede:hover:not(:disabled) { background: #BA7517; color: #fff; }
-  .dop-btn-reset { border-color: #b4b2a9; color: #5f5e5a; }
-  .dop-btn-reset:hover:not(:disabled) { background: #f1efe8; }
+  .dop-btn:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  }
+  .dop-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+  .dop-btn-start {
+    border-color: #00d9ff;
+    color: #00d9ff;
+    background: rgba(0, 217, 255, 0.1);
+  }
+  .dop-btn-start:hover:not(:disabled) {
+    background: #00d9ff;
+    color: #1a1a2e;
+    box-shadow: 0 0 20px rgba(0, 217, 255, 0.5);
+  }
+  .dop-btn-approach {
+    border-color: #00ff88;
+    color: #00ff88;
+    background: rgba(0, 255, 136, 0.1);
+  }
+  .dop-btn-approach:hover:not(:disabled) {
+    background: #00ff88;
+    color: #1a1a2e;
+    box-shadow: 0 0 20px rgba(0, 255, 136, 0.5);
+  }
+  .dop-btn-recede {
+    border-color: #ff6b35;
+    color: #ff6b35;
+    background: rgba(255, 107, 53, 0.1);
+  }
+  .dop-btn-recede:hover:not(:disabled) {
+    background: #ff6b35;
+    color: #1a1a2e;
+    box-shadow: 0 0 20px rgba(255, 107, 53, 0.5);
+  }
+  .dop-btn-reset {
+    border-color: #a0aec0;
+    color: #a0aec0;
+  }
+  .dop-btn-reset:hover:not(:disabled) {
+    background: #a0aec0;
+    color: #1a1a2e;
+  }
   .dop-status {
-    font-size: 0.68rem;
+    font-size: 1rem;
     letter-spacing: 1.5px;
-    color: #888780;
+    color: #a0aec0;
     text-align: center;
-    min-height: 16px;
-    padding: 4px 0;
+    min-height: 24px;
+    padding: 8px 0;
+    font-weight: 500;
   }
-  .dop-status.ok { color: #085041; }
-  .dop-status.warn { color: #633806; }
+  .dop-status.ok { color: #00ff88; }
+  .dop-status.warn { color: #ff6b35; }
   .dop-instructions {
-    font-size: 0.68rem;
-    color: #5f5e5a;
+    font-size: 0.95rem;
+    color: #a0aec0;
     line-height: 1.8;
     letter-spacing: 0.5px;
-    padding-top: 12px;
-    border-top: 0.5px solid #d3d1c7;
-    margin-top: 4px;
+    padding-top: 20px;
+    border-top: 1px solid #0f3460;
+    margin-top: 8px;
   }
-  .dop-instructions b { color: #2c2c2a; font-weight: 500; }
+  .dop-instructions b { color: #00d9ff; font-weight: 600; }
 </style>
 </head>
 <body>
@@ -343,7 +391,7 @@ function draw() {
   const dataArr = new Uint8Array(bufLen);
   analyser.getByteFrequencyData(dataArr);
   const W = canvas.width = canvas.offsetWidth * (window.devicePixelRatio||1);
-  const H = canvas.height = 110 * (window.devicePixelRatio||1);
+  const H = canvas.height = 140 * (window.devicePixelRatio||1);
   ctx2d.clearRect(0, 0, W, H);
   const sr = audioCtx.sampleRate, nyq = sr/2;
   const maxFreqShow = 4000;
@@ -357,18 +405,18 @@ function draw() {
   }
   if (freqApproach) {
     const x = (freqApproach/maxFreqShow)*W;
-    ctx2d.strokeStyle='#1D9E75'; ctx2d.lineWidth=2; ctx2d.setLineDash([4,4]);
+    ctx2d.strokeStyle='#00ff88'; ctx2d.lineWidth=2; ctx2d.setLineDash([4,4]);
     ctx2d.beginPath(); ctx2d.moveTo(x,0); ctx2d.lineTo(x,H); ctx2d.stroke(); ctx2d.setLineDash([]);
   }
   if (freqRecede) {
     const x = (freqRecede/maxFreqShow)*W;
-    ctx2d.strokeStyle='#BA7517'; ctx2d.lineWidth=2; ctx2d.setLineDash([4,4]);
+    ctx2d.strokeStyle='#ff6b35'; ctx2d.lineWidth=2; ctx2d.setLineDash([4,4]);
     ctx2d.beginPath(); ctx2d.moveTo(x,0); ctx2d.lineTo(x,H); ctx2d.stroke(); ctx2d.setLineDash([]);
   }
   const { freq, confidence } = getDominantFreq();
   freqDisplay.textContent = freq.toFixed(1) + ' Hz';
   confBar.style.width = confidence.toFixed(0) + '%';
-  confBar.style.background = confidence > 60 ? '#1D9E75' : confidence > 30 ? '#BA7517' : '#A32D2D';
+  confBar.style.background = confidence > 60 ? '#00ff88' : confidence > 30 ? '#ff6b35' : '#ff4757';
 }
 
 function lockApproach() {
